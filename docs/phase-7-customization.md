@@ -1,0 +1,367 @@
+# Phase 7 — Customization Settings
+
+> **Where:** Windows PC  
+> **Time:** ~30 minutes  
+> **Prerequisite:** Phase 6 complete (Interactive widget fully working)  
+> **Goal:** Create the Settings tab in the app so users can pick colors, font sizes, and line limits
+
+---
+
+## Checklist
+
+- [ ] Create `SettingsView.swift`
+- [ ] Connect values to `LyricsStore`
+- [ ] Implement a live widget preview
+- [ ] Wrap the views in a `TabView` structure
+- [ ] Commit and push
+
+---
+
+## Step 1: Create SettingsView.swift
+
+Create file: `LyricsWidget/Views/SettingsView.swift`
+
+```swift
+import SwiftUI
+
+struct SettingsView: View {
+    @EnvironmentObject var store: LyricsStore
+    
+    // Preset themes
+    private let themes = [
+        Theme(name: "Midnight", bg: "#1A1A2E", text: "#8888AA", highlight: "#E94560"),
+        Theme(name: "Forest", bg: "#1E2022", text: "#686D76", highlight: "#198964"),
+        Theme(name: "Ocean", bg: "#0F172A", text: "#64748B", highlight: "#38BDF8"),
+        Theme(name: "Nordic", bg: "#2E3440", text: "#D8DEE9", highlight: "#88C0D0"),
+        Theme(name: "Sakura", bg: "#2B2129", text: "#A890A2", highlight: "#FFB7C5")
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color(hex: "#0F0F1A").ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Live Preview Box
+                        widgetPreviewSection
+                        
+                        // Theme Presets
+                        themePresetsSection
+                        
+                        // Fine-tuned settings
+                        appearanceSettingsSection
+                        
+                        // About
+                        aboutSection
+                    }
+                    .padding(16)
+                }
+            }
+            .navigationTitle("Widget Settings")
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        }
+    }
+    
+    // MARK: - Widget Preview
+    
+    private var widgetPreviewSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("LIVE PREVIEW (MEDIUM WIDGET)")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.gray)
+                .padding(.leading, 4)
+            
+            // Re-use Widget styling
+            ZStack {
+                Color(hex: store.backgroundColorHex)
+                
+                VStack(spacing: 4) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(store.currentSong?.trackName ?? "Song Name")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(.white)
+                            
+                            Text(store.currentSong?.artistName ?? "Artist Name")
+                                .font(.system(size: 11))
+                                .foregroundColor(Color(hex: store.textColorHex).opacity(0.8))
+                        }
+                        Spacer()
+                        Image(systemName: "music.note.list")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color(hex: store.highlightColorHex))
+                    }
+                    .padding(.bottom, 4)
+                    
+                    // Mock lyrics
+                    VStack(alignment: .leading, spacing: 4) {
+                        let lines = ["Previous lyric line goes here", "This is the active highlighted line", "The next lines display below"]
+                        
+                        ForEach(Array(lines.enumerated()), id: \.offset) { index, text in
+                            let isCurrent = (index == 1)
+                            Text(text)
+                                .font(.system(size: CGFloat(store.fontSize), weight: isCurrent ? .bold : .regular))
+                                .foregroundColor(isCurrent ? Color(hex: store.highlightColorHex) : Color(hex: store.textColorHex))
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 2)
+                                .background(isCurrent ? Color(hex: store.highlightColorHex).opacity(0.1) : Color.clear)
+                                .cornerRadius(4)
+                        }
+                    }
+                }
+                .padding(12)
+            }
+            .frame(height: 140)
+            .cornerRadius(18)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(radius: 10)
+        }
+    }
+    
+    // MARK: - Themes
+    
+    private var themePresetsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("THEME PRESETS")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.gray)
+                .padding(.leading, 4)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(themes) { theme in
+                        Button(action: { applyTheme(theme) }) {
+                            VStack(spacing: 8) {
+                                // Mini palette circle
+                                HStack(spacing: -8) {
+                                    Circle().fill(Color(hex: theme.bg)).frame(width: 24, height: 24)
+                                    Circle().fill(Color(hex: theme.text)).frame(width: 24, height: 24)
+                                    Circle().fill(Color(hex: theme.highlight)).frame(width: 24, height: 24)
+                                }
+                                .padding(.top, 8)
+                                
+                                Text(theme.name)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .padding(.bottom, 8)
+                            }
+                            .frame(width: 80)
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(
+                                        isThemeApplied(theme)
+                                            ? Color(hex: theme.highlight)
+                                            : Color.white.opacity(0.1),
+                                        lineWidth: isThemeApplied(theme) ? 2 : 1
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Options Group
+    
+    private var appearanceSettingsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("MANUAL CUSTOMIZATION")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.gray)
+                .padding(.leading, 4)
+            
+            VStack(spacing: 0) {
+                // Background Hex input
+                customColorRow(title: "Background Hex", hex: $store.backgroundColorHex)
+                
+                Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
+                
+                // Text Hex
+                customColorRow(title: "Text Hex", hex: $store.textColorHex)
+                
+                Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
+                
+                // Highlight Hex
+                customColorRow(title: "Highlight Hex", hex: $store.highlightColorHex)
+                
+                Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
+                
+                // Font Size Stepper
+                HStack {
+                    Text("Font Size")
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(Int(store.fontSize)) pt")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 8)
+                    Stepper("", value: $store.fontSize, in: 10...24)
+                        .labelsHidden()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                
+                Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
+                
+                // Visible lines selector
+                HStack {
+                    Text("Visible Lines")
+                        .foregroundColor(.white)
+                    Spacer()
+                    Picker("", selection: $store.linesVisible) {
+                        Text("3 Lines").tag(3)
+                        Text("5 Lines").tag(5)
+                        Text("7 Lines").tag(7)
+                    }
+                    .pickerStyle(.menu)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+            .background(Color.white.opacity(0.04))
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
+            )
+        }
+    }
+    
+    private func customColorRow(title: String, hex: Binding<String>) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.white)
+            Spacer()
+            
+            // Color preview bubble
+            Circle()
+                .fill(Color(hex: hex.wrappedValue))
+                .frame(width: 20, height: 20)
+                .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
+            
+            TextField("#FFFFFF", text: hex)
+                .frame(width: 80)
+                .multilineTextAlignment(.trailing)
+                .foregroundColor(.gray)
+                .font(.system(size: 14, design: .monospaced))
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.characters)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+    
+    // MARK: - About
+    
+    private var aboutSection: some View {
+        VStack(spacing: 6) {
+            Text("Lyrico v1.0")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.gray)
+            
+            Text("Powered by LRCLIB database")
+                .font(.system(size: 10))
+                .foregroundColor(.gray.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func applyTheme(_ theme: Theme) {
+        withAnimation {
+            store.backgroundColorHex = theme.bg
+            store.textColorHex = theme.text
+            store.highlightColorHex = theme.highlight
+        }
+    }
+    
+    private func isThemeApplied(_ theme: Theme) -> Bool {
+        return store.backgroundColorHex.uppercased() == theme.bg.uppercased() &&
+               store.textColorHex.uppercased() == theme.text.uppercased() &&
+               store.highlightColorHex.uppercased() == theme.highlight.uppercased()
+    }
+    
+    struct Theme: Identifiable {
+        let id = UUID()
+        let name: String
+        let bg: String
+        let text: String
+        let highlight: String
+    }
+}
+```
+
+---
+
+## Step 2: Combine Views in a TabView
+
+Now we need to update our app's entry structure so that both search and settings are available as tabs.
+
+Open `LyricsWidget/Views/LyricsSearchView.swift` or create/update `LyricsWidgetApp.swift` to use a `TabView`.
+
+Let's modify `LyricsWidget/LyricsWidgetApp.swift`:
+
+```swift
+import SwiftUI
+
+@main
+struct LyricsWidgetApp: App {
+    @StateObject private var store = LyricsStore.shared
+    
+    var body: some Scene {
+        WindowGroup {
+            TabView {
+                LyricsSearchView()
+                    .environmentObject(store)
+                    .tabItem {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                
+                SettingsView()
+                    .environmentObject(store)
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+            }
+            .preferredColorScheme(.dark)
+        }
+    }
+}
+```
+
+---
+
+## Step 3: Register SettingsView in the Xcode Project
+
+Make sure the new `SettingsView.swift` is added to your project file checklist:
+
+1. Drag `SettingsView.swift` into the `LyricsWidget/Views/` folder in Xcode Project Navigator during your next Mac session.
+2. Check the box to add it to the main `LyricsWidget` target compilation.
+
+---
+
+## Step 4: Commit and Push
+
+```powershell
+git add .
+git commit -m "add settings view with preset themes, customization options, and live preview"
+git push origin main
+```
+
+---
+
+## What's Next
+
+Now that the complete app features are configured, you can build, sideload, and review your workflow.
+
+→ **[Phase 8: Ongoing Workflow & Tips](./phase-8-ongoing.md)**
