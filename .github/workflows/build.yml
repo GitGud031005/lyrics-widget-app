@@ -1,0 +1,89 @@
+name: Build iOS App
+
+# When to run this workflow:
+on:
+  # Automatically on every push to main
+  push:
+    branches: [main]
+  
+  # Manually from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Lyrico
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      # Step 1: Get our code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Show build environment info (helpful for debugging)
+      - name: Show environment
+        run: |
+          echo "=== Xcode Version ==="
+          xcodebuild -version
+          echo ""
+          echo "=== Available SDKs ==="
+          xcodebuild -showsdks | grep iphoneos
+          echo ""
+          echo "=== Project Schemes ==="
+          xcodebuild -project LyricsWidget.xcodeproj -list
+
+      # Step 3: Build the app (unsigned — AltStore will re-sign)
+      - name: Build .app bundle
+        run: |
+          xcodebuild \
+            -project LyricsWidget.xcodeproj \
+            -scheme LyricsWidget \
+            -configuration Debug \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build \
+            2>&1 | tail -50
+
+          echo ""
+          echo "=== Build Complete ==="
+
+      # Step 4: Package the .app into an IPA
+      - name: Package as IPA
+        run: |
+          # Find the built .app bundle
+          APP_PATH=$(find build/Build/Products -name "*.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: Could not find .app bundle!"
+            echo "Contents of build directory:"
+            find build -type d -name "*.app"
+            exit 1
+          fi
+          
+          echo "Found app at: $APP_PATH"
+          
+          # Create the IPA structure (IPA = zip containing Payload/*.app)
+          mkdir -p package/Payload
+          cp -r "$APP_PATH" package/Payload/
+          
+          # Create the IPA file
+          cd package
+          zip -r ../LyricsWidget.ipa Payload/
+          cd ..
+          
+          # Verify
+          echo ""
+          echo "=== IPA Created ==="
+          ls -lh LyricsWidget.ipa
+
+      # Step 5: Upload the IPA as a downloadable artifact
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lyrico-ipa
+          path: LyricsWidget.ipa
+          retention-days: 30
