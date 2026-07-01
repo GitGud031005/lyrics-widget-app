@@ -45,8 +45,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
-            build \
-            2>&1 | tail -50
+            build
 
           echo ""
           echo "=== Build Complete ==="
