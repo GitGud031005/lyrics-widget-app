@@ -8,14 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		D3D080A52C00000100000001 /* LyricsWidgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080A42C00000100000001 /* LyricsWidgetApp.swift */; };
-		D3D080A72C00000100000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080A62C00000100000002 /* ContentView.swift */; };
+		D3D080B12C00000200000001 /* LyricsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000001 /* LyricsModel.swift */; };
+		D3D080B12C00000200000002 /* LyricsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000002 /* LyricsAPI.swift */; };
+		D3D080B12C00000200000003 /* LyricsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000003 /* LyricsStore.swift */; };
+		D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000004 /* LyricsSearchView.swift */; };
+		D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000005 /* LyricsDisplayView.swift */; };
 		D3D080A92C00000100000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3D080A82C00000100000003 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D3D080A12C00000100000000 /* LyricsWidget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LyricsWidget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3D080A42C00000100000001 /* LyricsWidgetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetApp.swift; sourceTree = "<group>"; };
-		D3D080A62C00000100000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000001 /* LyricsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/LyricsModel.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000002 /* LyricsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/LyricsAPI.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000003 /* LyricsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage/LyricsStore.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000004 /* LyricsSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsSearchView.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000005 /* LyricsDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsDisplayView.swift; sourceTree = "<group>"; };
 		D3D080A82C00000100000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -50,7 +58,11 @@
 			isa = PBXGroup;
 			children = (
 				D3D080A42C00000100000001 /* LyricsWidgetApp.swift */,
-				D3D080A62C00000100000002 /* ContentView.swift */,
+				D3D080B02C00000200000001 /* LyricsModel.swift */,
+				D3D080B02C00000200000002 /* LyricsAPI.swift */,
+				D3D080B02C00000200000003 /* LyricsStore.swift */,
+				D3D080B02C00000200000004 /* LyricsSearchView.swift */,
+				D3D080B02C00000200000005 /* LyricsDisplayView.swift */,
 				D3D080A82C00000100000003 /* Assets.xcassets */,
 			);
 			path = LyricsWidget;
@@ -126,7 +138,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3D080A52C00000100000001 /* LyricsWidgetApp.swift in Sources */,
-				D3D080A72C00000100000002 /* ContentView.swift in Sources */,
+				D3D080B12C00000200000001 /* LyricsModel.swift in Sources */,
+				D3D080B12C00000200000002 /* LyricsAPI.swift in Sources */,
+				D3D080B12C00000200000003 /* LyricsStore.swift in Sources */,
+				D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */,
+				D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
