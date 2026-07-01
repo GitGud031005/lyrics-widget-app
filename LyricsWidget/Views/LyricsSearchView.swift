@@ -311,7 +311,7 @@ struct LyricsSearchView: View {
             
             guard !Task.isCancelled else { return }
             
-            await performSearch()
+            performSearch()
         }
     }
     

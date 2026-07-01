@@ -82,10 +82,12 @@ class LyricsStore: ObservableObject {
         self.backgroundColorHex = UserDefaults.standard.string(forKey: Keys.bgColor) ?? "#1A1A2E"
         self.textColorHex = UserDefaults.standard.string(forKey: Keys.textColor) ?? "#8888AA"
         self.highlightColorHex = UserDefaults.standard.string(forKey: Keys.highlightColor) ?? "#E94560"
-        self.fontSize = UserDefaults.standard.double(forKey: Keys.fontSize)
-        if self.fontSize == 0 { self.fontSize = 14.0 }
-        self.linesVisible = UserDefaults.standard.integer(forKey: Keys.linesVisible)
-        if self.linesVisible == 0 { self.linesVisible = 5 }
+        
+        let savedFontSize = UserDefaults.standard.double(forKey: Keys.fontSize)
+        self.fontSize = savedFontSize == 0 ? 14.0 : savedFontSize
+        
+        let savedLinesVisible = UserDefaults.standard.integer(forKey: Keys.linesVisible)
+        self.linesVisible = savedLinesVisible == 0 ? 5 : savedLinesVisible
         
         // Load current song
         loadSong()
