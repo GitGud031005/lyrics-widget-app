@@ -155,3 +155,33 @@ class LyricsStore: ObservableObject {
         currentLineIndex = 0
     }
 }
+
+// MARK: - Color Helpers
+
+extension Color {
+    /// Create a Color from a hex string like "#FF5733" or "#FF573380" (with alpha)
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let scanner = Scanner(string: hex)
+        var rgbValue: UInt64 = 0
+        scanner.scanHexInt64(&rgbValue)
+        
+        let r, g, b, a: Double
+        switch hex.count {
+        case 6:
+            r = Double((rgbValue & 0xFF0000) >> 16) / 255.0
+            g = Double((rgbValue & 0x00FF00) >> 8) / 255.0
+            b = Double(rgbValue & 0x0000FF) / 255.0
+            a = 1.0
+        case 8:
+            r = Double((rgbValue & 0xFF000000) >> 24) / 255.0
+            g = Double((rgbValue & 0x00FF0000) >> 16) / 255.0
+            b = Double((rgbValue & 0x0000FF00) >> 8) / 255.0
+            a = Double(rgbValue & 0x000000FF) / 255.0
+        default:
+            r = 0; g = 0; b = 0; a = 1
+        }
+        
+        self.init(red: r, green: g, blue: b, opacity: a)
+    }
+}
