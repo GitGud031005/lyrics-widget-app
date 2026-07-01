@@ -1,124 +1,103 @@
-# Phase 5 — Mac Session #2: Widget Extension
+# Phase 5 — Windows: Widget Target Setup (No-Mac Route)
 
-> **Where:** Borrowed Mac  
-> **Time:** ~1 hour  
+> **Where:** Windows PC  
 > **Prerequisite:** Phase 4 complete (app successfully sideloaded and running)  
-> **Goal:** Create the Widget Extension target in Xcode, enable App Groups on both targets, and push the scaffolding to GitHub
+> **Goal:** Create the Widget Extension target, configure App Groups manually inside the project database (`project.pbxproj`), and enable sharing entitlements on Windows.
 
 ---
 
-## Checklist
+## Overview
 
-- [ ] Fetch the latest code onto the Mac
-- [ ] Add the **Widget Extension** target in Xcode
-- [ ] Create and enable the **App Group** capability on BOTH targets
-- [ ] Verify the project builds and runs on your physical iPhone
-- [ ] Commit and push the structural changes to GitHub
+Usually, adding targets and enabling capabilities like **App Groups** requires Xcode on macOS. However, we can bypass the Mac completely by manually creating the entitlement XML files and adding target configurations directly into the OpenStep plist structure of `project.pbxproj` on Windows. 
+
+When you push these files, the macOS runner in GitHub Actions compiles both targets into a single `.ipa` bundle, and AltStore signs both the app and the widget dynamically when installing on your iPhone.
 
 ---
 
-## Step 1: Sync Your Workspace on the Mac
+## Step 1: Create App Group Entitlement Files
 
-1. Sit down at the borrowed Mac.
-2. Open **Terminal** and navigate to your local repo folder:
-   ```bash
-   cd ~/Desktop/lyrics-widget-app
-   ```
-3. Pull the latest code (which now contains your Phase 2 & 3 files):
-   ```bash
-   git pull origin main
-   ```
-4. Open the project in Xcode:
-   ```bash
-   open LyricsWidget.xcodeproj
-   ```
+Both the main app and the widget extension must belong to the same **App Group** to share settings and active lyrics (since they run in separate iOS sandboxes). We enable this by creating `.entitlements` files.
 
----
+### 1. Create Main App Entitlements
+Create file: `LyricsWidget/LyricsWidget.entitlements`
 
-## Step 2: Add Files to project.pbxproj (If you haven't yet)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.lyrico.LyricsWidget</string>
+	</array>
+</dict>
+</plist>
+```
 
-If you chose to wait and add the Swift files (created in Phase 2) via the Mac instead of hand-editing the workspace files on Windows:
+### 2. Create Widget Extension Entitlements
+Create file: `LyricsWidgetExtension/LyricsWidgetExtension.entitlements`
 
-1. Right-click on the `LyricsWidget` folder in Xcode's left Project Navigator.
-2. Select **Add Files to "LyricsWidget"...**
-3. Select the `Models/`, `Services/`, `Views/`, and `Storage/` directories.
-4. Ensure **Copy items if needed** is **UNCHECKED** (since they are already in the directory).
-5. Ensure **Create groups** is checked, and target **LyricsWidget** is checked.
-6. Click **Add**.
-7. Press `Cmd + B` to ensure Xcode compiles the project without errors.
-
----
-
-## Step 3: Create the Widget Extension Target
-
-1. Go to Xcode menu → **File** > **New** > **Target...**
-2. In the template dialog, select the **iOS** tab, search for "widget", and select **Widget Extension**. Click **Next**.
-3. Fill in the configuration:
-   - **Product Name**: `LyricsWidgetExtension`
-   - **Include Live Activity**: **Uncheck**
-   - **Include Configuration Intent**: **Uncheck** (we will use our custom AppIntent)
-4. Click **Finish**.
-5. Xcode will ask if you want to activate the new scheme: **"Activate 'LyricsWidgetExtensionExtension' scheme?"** → click **Activate**.
-
-Xcode will now generate a new folder in your project directory called `LyricsWidgetExtension` with files:
-- `LyricsWidget.swift` (Contains sample code for a widget)
-- `LyricsWidgetBundle.swift`
-- `LyricsWidgetExtension.entitlements`
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.lyrico.LyricsWidget</string>
+	</array>
+</dict>
+</plist>
+```
 
 ---
 
-## Step 4: Configure App Groups (Crucial for Storage Sharing)
+## Step 2: Configure Widget target in project.pbxproj
 
-iOS apps and widget extensions run in separate sandboxes. To share data (so the widget can see what song you searched for in the app), we must register them in the same **App Group**.
+To tell the Xcode build system about the new `LyricsWidgetExtension` target, we register it inside `LyricsWidget.xcodeproj/project.pbxproj`.
 
-### 1. Enable App Groups on the Main App Target
-1. Select the root **LyricsWidget** project file in the left navigator.
-2. Select the **LyricsWidget** target under Targets.
-3. Click the **Signing & Capabilities** tab.
-4. Click the **+ Capability** button in the top left.
-5. Double-click **App Groups** in the list.
-6. Scroll down to the newly added "App Groups" section.
-7. Click the **+** button under App Groups.
-8. Enter: `group.com.lyrico.LyricsWidget` and click **OK**.
-9. Ensure the checkbox next to the group name is checked.
-
-### 2. Enable App Groups on the Widget Extension Target
-1. Under Targets, select the **LyricsWidgetExtension** target.
-2. Click the **Signing & Capabilities** tab.
-3. Click **+ Capability** → double-click **App Groups**.
-4. You should see `group.com.lyrico.LyricsWidget` already in the list.
-5. **Check the box** next to it to enable it for the extension.
+This involves adding:
+1. **PBXFileReference** entries for the widget files (timeline provider, intents, view) and the `.appex` bundle product.
+2. **PBXNativeTarget** to define the `LyricsWidgetExtension` target (product type: `com.apple.product-type.app-extension`).
+3. **PBXCopyFilesBuildPhase** (Embed App Extensions) inside the main `LyricsWidget` target to embed the compiled `.appex` in the main app's `PlugIns` directory.
+4. **PBXTargetDependency** and **PBXContainerItemProxy** settings to compile the widget target prior to packaging the main app.
+5. **XCBuildConfiguration** blocks for the widget target including target configurations for **Debug** and **Release** that point to our custom `CODE_SIGN_ENTITLEMENTS` file.
 
 ---
 
-## Step 5: Test Build on iPhone
+## Step 3: Write Widget Source Code
 
-1. Make sure your physical iPhone is connected and selected in the top bar.
-2. Select the main **LyricsWidget** scheme in the top bar.
-3. Press **▶ Run** (`Cmd + R`).
-4. Once the app launches on your phone, go back to your Home Screen.
-5. Long-press on an empty area of your Home Screen to enter "jiggle mode".
-6. Tap the **+** button in the top-left corner.
-7. Search for **LyricsWidget** (or **Lyrico**).
-8. Add the widget to your home screen. It will show default dummy calendar/clock text — that means it's running Xcode's template code!
+Create the files inside `LyricsWidgetExtension/` for the widget implementation:
+* `LyricsWidget.swift` (Widget Configuration Entrypoint)
+* `LyricsWidgetBundle.swift` (Widget bundle loop)
+* `LyricsWidgetIntents.swift` (App Intents for button taps)
+* `LyricsTimelineProvider.swift` (Widget lifecycle & timeline events)
+* `LyricsWidgetEntryView.swift` (Widget layout & buttons)
+
+*(Note: We implement these files in Phase 6).*
 
 ---
 
-## Step 6: Commit and Push
+## Step 4: Verify, Commit, and Push
 
-1. Open Terminal on the Mac:
-   ```bash
-   cd ~/Desktop/lyrics-widget-app
+1. Stage all changes on Windows:
+   ```powershell
    git add .
-   git commit -m "add widget target with App Groups capability"
+   ```
+2. Commit the new target configurations:
+   ```powershell
+   git commit -m "feat: configure widget target and app group entitlements"
+   ```
+3. Push to GitHub to trigger compilation:
+   ```powershell
    git push origin main
    ```
-2. You can now close Xcode. The remaining widget code, layout design, and interactive button scrolling will be written on Windows.
+4. Verify the GitHub Actions build compiles both targets without errors.
 
 ---
 
 ## What's Next
 
-Now we return to Windows to replace the template widget code with our interactive lyrics scroller!
+Now we proceed directly to writing the interactive widget code on Windows.
 
 → **[Phase 6: Shared Storage & Widget Code](./phase-6-widget-code.md)**

@@ -1,6 +1,10 @@
-# Phase 0 — Mac Session #1: Bootstrap & Device Registration
+# Phase 0 — Mac Session #1: Bootstrap & Device Registration (Archived / Bypassed)
 
-> **Where:** Borrowed Mac  
+> [!NOTE]
+> **STATUS: BYPASSED & ARCHIVED**  
+> This project has successfully transitioned to a **100% Windows-only development flow**. We manually bootstrapped the Xcode project and successfully compiled/sideloaded the initial app without a physical Mac. This document is kept for reference purposes only.
+
+> **Where:** Borrowed Mac (Bypassed)  
 > **Time:** ~1.5 hours  
 > **Goal:** Create the Xcode project, register your iPhone, export signing credentials, push to GitHub
 

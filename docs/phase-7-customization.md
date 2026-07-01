@@ -343,10 +343,11 @@ struct LyricsWidgetApp: App {
 
 ## Step 3: Register SettingsView in the Xcode Project
 
-Make sure the new `SettingsView.swift` is added to your project file checklist:
+Make sure the new `SettingsView.swift` is registered in `project.pbxproj` on Windows:
 
-1. Drag `SettingsView.swift` into the `LyricsWidget/Views/` folder in Xcode Project Navigator during your next Mac session.
-2. Check the box to add it to the main `LyricsWidget` target compilation.
+1. Add a PBXFileReference and a PBXBuildFile entry for `SettingsView.swift` in the `project.pbxproj` file.
+2. Add the file reference under the children list of the `Views` group in `project.pbxproj`.
+3. Add the build file reference inside the `Sources` build phase of the `LyricsWidget` target.
 
 ---
 

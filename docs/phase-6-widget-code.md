@@ -2,33 +2,25 @@
 
 > **Where:** Windows PC  
 > **Time:** ~1 hour  
-> **Prerequisite:** Phase 5 complete (Widget target created, App Groups enabled, pulled to Windows)  
+> **Prerequisite:** Phase 5 complete (Widget target manually configured, entitlements created)  
 > **Goal:** Implement the Widget TimelineProvider, widget views, and the AppIntent for interactive scrolling
 
 ---
 
 ## Checklist
 
-- [ ] Fetch the updated project structure from GitHub
 - [ ] Update `LyricsStore.swift` to use your App Group ID
 - [ ] Create `LyricsWidgetIntents.swift` (AppIntent for button taps)
 - [ ] Create `LyricsTimelineProvider.swift` (Widget data scheduling)
 - [ ] Create `LyricsWidgetEntryView.swift` (Widget UI layout)
 - [ ] Update `LyricsWidgetBundle.swift` / `LyricsWidget.swift`
-- [ ] Update the CI workflow file to bundle the widget extension
 - [ ] Build, download, and test the widget
 
 ---
 
-## Step 1: Update Workspace & Enable App Group
+## Step 1: Enable App Group in Shared Storage
 
-Open PowerShell on your Windows PC and pull the changes:
-```powershell
-cd c:\Users\phucl\OneDrive\Desktop\phuc\Projects\autoscroll-lyrics-widget
-git pull origin main
-```
-
-Now, update `LyricsWidget/Storage/LyricsStore.swift` to enable the App Group. Find the line:
+Update `LyricsWidget/Storage/LyricsStore.swift` to enable the App Group. Find the line:
 ```swift
 private let appGroupID: String? = nil
 ```
