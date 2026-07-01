@@ -251,12 +251,12 @@ struct LyricsDisplayView: View {
                     RoundedRectangle(cornerRadius: 14)
                         .fill(
                             isSetAsWidget
-                                ? Color(hex: "#4ECCA3")
-                                : LinearGradient(
+                                ? AnyShapeStyle(Color(hex: "#4ECCA3"))
+                                : AnyShapeStyle(LinearGradient(
                                     colors: [Color(hex: "#E94560"), Color(hex: "#C23152")],
                                     startPoint: .leading,
                                     endPoint: .trailing
-                                )
+                                ))
                         )
                 )
             }
