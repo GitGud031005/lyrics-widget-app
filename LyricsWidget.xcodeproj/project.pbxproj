@@ -14,6 +14,14 @@
 		D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000004 /* LyricsSearchView.swift */; };
 		D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000005 /* LyricsDisplayView.swift */; };
 		D3D080A92C00000100000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3D080A82C00000100000003 /* Assets.xcassets */; };
+		D3D080CA2C00000300000001 /* LyricsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000001 /* LyricsWidget.swift */; };
+		D3D080CA2C00000300000002 /* LyricsWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000002 /* LyricsWidgetBundle.swift */; };
+		D3D080CA2C00000300000003 /* LyricsWidgetIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000003 /* LyricsWidgetIntents.swift */; };
+		D3D080CA2C00000300000004 /* LyricsTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000004 /* LyricsTimelineProvider.swift */; };
+		D3D080CA2C00000300000005 /* LyricsWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000005 /* LyricsWidgetEntryView.swift */; };
+		D3D080CA2C00000300000006 /* LyricsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000001 /* LyricsModel.swift */; };
+		D3D080CA2C00000300000007 /* LyricsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000003 /* LyricsStore.swift */; };
+		D3D080CC2C00000300000000 /* LyricsWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,10 +33,25 @@
 		D3D080B02C00000200000004 /* LyricsSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsSearchView.swift; sourceTree = "<group>"; };
 		D3D080B02C00000200000005 /* LyricsDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsDisplayView.swift; sourceTree = "<group>"; };
 		D3D080A82C00000100000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LyricsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3D080C92C00000300000001 /* LyricsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidget.swift; sourceTree = "<group>"; };
+		D3D080C92C00000300000002 /* LyricsWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetBundle.swift; sourceTree = "<group>"; };
+		D3D080C92C00000300000003 /* LyricsWidgetIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetIntents.swift; sourceTree = "<group>"; };
+		D3D080C92C00000300000004 /* LyricsTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsTimelineProvider.swift; sourceTree = "<group>"; };
+		D3D080C92C00000300000005 /* LyricsWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetEntryView.swift; sourceTree = "<group>"; };
+		D3D080C92C00000300000006 /* LyricsWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsWidgetExtension.entitlements; sourceTree = "<group>"; };
+		D3D080C92C00000300000007 /* LyricsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsWidget.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D3D0809E2C00000100000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3D080C72C00000300000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -42,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				D3D080A32C00000100000000 /* LyricsWidget */,
+				D3D080C22C00000300000000 /* LyricsWidgetExtension */,
 				D3D080A22C00000100000000 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				D3D080A12C00000100000000 /* LyricsWidget.app */,
+				D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -63,9 +88,23 @@
 				D3D080B02C00000200000003 /* LyricsStore.swift */,
 				D3D080B02C00000200000004 /* LyricsSearchView.swift */,
 				D3D080B02C00000200000005 /* LyricsDisplayView.swift */,
+				D3D080C92C00000300000007 /* LyricsWidget.entitlements */,
 				D3D080A82C00000100000003 /* Assets.xcassets */,
 			);
 			path = LyricsWidget;
+			sourceTree = "<group>";
+		};
+		D3D080C22C00000300000000 /* LyricsWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				D3D080C92C00000300000001 /* LyricsWidget.swift */,
+				D3D080C92C00000300000002 /* LyricsWidgetBundle.swift */,
+				D3D080C92C00000300000003 /* LyricsWidgetIntents.swift */,
+				D3D080C92C00000300000004 /* LyricsTimelineProvider.swift */,
+				D3D080C92C00000300000005 /* LyricsWidgetEntryView.swift */,
+				D3D080C92C00000300000006 /* LyricsWidgetExtension.entitlements */,
+			);
+			path = LyricsWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,15 +117,34 @@
 				D3D0809D2C00000100000000 /* Sources */,
 				D3D0809E2C00000100000000 /* Frameworks */,
 				D3D0809F2C00000100000000 /* Resources */,
+				D3D080CB2C00000300000000 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D3D080CD2C00000300000000 /* PBXTargetDependency */,
 			);
 			name = LyricsWidget;
 			productName = LyricsWidget;
 			productReference = D3D080A12C00000100000000 /* LyricsWidget.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D3D080C02C00000300000000 /* LyricsWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3D080C52C00000300000000 /* Build configuration list for PBXNativeTarget "LyricsWidgetExtension" */;
+			buildPhases = (
+				D3D080C62C00000300000000 /* Sources */,
+				D3D080C72C00000300000000 /* Frameworks */,
+				D3D080C82C00000300000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LyricsWidgetExtension;
+			productName = LyricsWidgetExtension;
+			productReference = D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -99,6 +157,9 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					D3D080A02C00000100000000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					D3D080C02C00000300000000 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -117,6 +178,7 @@
 			projectRoot = "";
 			targets = (
 				D3D080A02C00000100000000 /* LyricsWidget */,
+				D3D080C02C00000300000000 /* LyricsWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -127,6 +189,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3D080A92C00000100000003 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3D080C82C00000300000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,7 +215,53 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D3D080C62C00000300000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3D080CA2C00000300000001 /* LyricsWidget.swift in Sources */,
+				D3D080CA2C00000300000002 /* LyricsWidgetBundle.swift in Sources */,
+				D3D080CA2C00000300000003 /* LyricsWidgetIntents.swift in Sources */,
+				D3D080CA2C00000300000004 /* LyricsTimelineProvider.swift in Sources */,
+				D3D080CA2C00000300000005 /* LyricsWidgetEntryView.swift in Sources */,
+				D3D080CA2C00000300000006 /* LyricsModel.swift in Sources */,
+				D3D080CA2C00000300000007 /* LyricsStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D3D080CB2C00000300000000 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D3D080CC2C00000300000000 /* LyricsWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D3D080CD2C00000300000000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D3D080C02C00000300000000 /* LyricsWidgetExtension */;
+			targetProxy = D3D080CE2C00000300000000 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXContainerItemProxy section */
+		D3D080CE2C00000300000000 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D3D080992C00000100000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D3D080C02C00000300000000;
+			remoteInfo = LyricsWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin XCBuildConfiguration section */
 		D3D080AA2C00000100000000 /* Debug */ = {
@@ -272,6 +387,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LyricsWidget/LyricsWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"LyricsWidget/Preview Content\"";
@@ -297,6 +413,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LyricsWidget/LyricsWidget.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"LyricsWidget/Preview Content\"";
@@ -312,6 +429,56 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lyrico.LyricsWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D3D080C92C00000300000010 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LyricsWidgetExtension/LyricsWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lyrico Widget";
+				INFOPLIST_KEY_NSExtension = {
+					NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				};
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lyrico.LyricsWidget.LyricsWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D3D080C92C00000300000011 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = LyricsWidgetExtension/LyricsWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lyrico Widget";
+				INFOPLIST_KEY_NSExtension = {
+					NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				};
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lyrico.LyricsWidget.LyricsWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -334,6 +501,15 @@
 			buildConfigurations = (
 				D3D080AD2C00000100000000 /* Debug */,
 				D3D080AE2C00000100000000 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D3D080C52C00000300000000 /* Build configuration list for PBXNativeTarget "LyricsWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D3D080C92C00000300000010 /* Debug */,
+				D3D080C92C00000300000011 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

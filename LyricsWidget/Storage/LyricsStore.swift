@@ -1,22 +1,19 @@
 import Foundation
 import SwiftUI
+import WidgetKit
 
 // MARK: - Shared Storage (App ↔ Widget via App Groups)
 
 /// Central storage for lyrics data and widget settings.
 /// Uses UserDefaults with an App Group suite so both the main app
 /// and the widget extension can read/write the same data.
-///
-/// NOTE: The App Group ID will be set up in Phase 5 (Mac Session #2).
-/// Until then, this falls back to standard UserDefaults.
 class LyricsStore: ObservableObject {
     static let shared = LyricsStore()
     
     // MARK: - App Group Configuration
     
-    /// App Group ID — set this after creating the App Group in Phase 5
-    /// Format: "group.com.lyrico.LyricsWidget"
-    private let appGroupID: String? = nil  // TODO: Set after Phase 5
+    /// App Group ID for sharing sandbox data
+    private let appGroupID: String? = "group.com.lyrico.LyricsWidget"
     
     private var defaults: UserDefaults {
         if let groupID = appGroupID,
@@ -30,7 +27,10 @@ class LyricsStore: ObservableObject {
     
     /// The currently selected song for the widget
     @Published var currentSong: LRCSearchResult? {
-        didSet { persistSong() }
+        didSet {
+            persistSong()
+            reloadWidget()
+        }
     }
     
     /// Parsed lyric lines from the current song's synced lyrics
@@ -38,29 +38,47 @@ class LyricsStore: ObservableObject {
     
     /// Index of the currently highlighted line in the widget
     @Published var currentLineIndex: Int = 0 {
-        didSet { defaults.set(currentLineIndex, forKey: Keys.lineIndex) }
+        didSet {
+            defaults.set(currentLineIndex, forKey: Keys.lineIndex)
+            reloadWidget()
+        }
     }
     
     // MARK: - Widget Appearance Settings
     
     @Published var backgroundColorHex: String {
-        didSet { defaults.set(backgroundColorHex, forKey: Keys.bgColor) }
+        didSet {
+            defaults.set(backgroundColorHex, forKey: Keys.bgColor)
+            reloadWidget()
+        }
     }
     
     @Published var textColorHex: String {
-        didSet { defaults.set(textColorHex, forKey: Keys.textColor) }
+        didSet {
+            defaults.set(textColorHex, forKey: Keys.textColor)
+            reloadWidget()
+        }
     }
     
     @Published var highlightColorHex: String {
-        didSet { defaults.set(highlightColorHex, forKey: Keys.highlightColor) }
+        didSet {
+            defaults.set(highlightColorHex, forKey: Keys.highlightColor)
+            reloadWidget()
+        }
     }
     
     @Published var fontSize: Double {
-        didSet { defaults.set(fontSize, forKey: Keys.fontSize) }
+        didSet {
+            defaults.set(fontSize, forKey: Keys.fontSize)
+            reloadWidget()
+        }
     }
     
     @Published var linesVisible: Int {
-        didSet { defaults.set(linesVisible, forKey: Keys.linesVisible) }
+        didSet {
+            defaults.set(linesVisible, forKey: Keys.linesVisible)
+            reloadWidget()
+        }
     }
     
     // MARK: - Keys
@@ -155,6 +173,11 @@ class LyricsStore: ObservableObject {
     /// Reset to the beginning
     func resetPosition() {
         currentLineIndex = 0
+    }
+    
+    /// Trigger a reload of all active widgets on the home screen
+    func reloadWidget() {
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 
