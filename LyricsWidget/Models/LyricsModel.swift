@@ -59,8 +59,8 @@ enum LRCParser {
         let lines = lrcString.components(separatedBy: "\n")
         var result: [LyricLine] = []
         
-        // Match patterns like [01:23.45] or [01:23.456]
-        let pattern = #"\[(\d{1,2}):(\d{2})\.(\d{2,3})\]\s*(.*)"#
+        // Match patterns like [01:23.45], [01:23:45] or [01:23] (milliseconds/centiseconds are optional)
+        let pattern = #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]\s*(.*)"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return []
         }
@@ -73,20 +73,22 @@ enum LRCParser {
             
             guard let minRange = Range(match.range(at: 1), in: line),
                   let secRange = Range(match.range(at: 2), in: line),
-                  let msRange = Range(match.range(at: 3), in: line),
                   let textRange = Range(match.range(at: 4), in: line) else {
                 continue
             }
             
             let minutes = Double(line[minRange]) ?? 0
             let seconds = Double(line[secRange]) ?? 0
-            let msString = String(line[msRange])
-            let ms = Double(msString) ?? 0
             
-            // Handle both 2-digit (centiseconds) and 3-digit (milliseconds)
-            let msDivisor: Double = msString.count >= 3 ? 1000.0 : 100.0
-            let timestamp = minutes * 60.0 + seconds + ms / msDivisor
+            var ms: Double = 0
+            if let msRange = Range(match.range(at: 3), in: line) {
+                let msString = String(line[msRange])
+                let rawMs = Double(msString) ?? 0
+                let msDivisor: Double = msString.count >= 3 ? 1000.0 : 100.0
+                ms = rawMs / msDivisor
+            }
             
+            let timestamp = minutes * 60.0 + seconds + ms
             let text = String(line[textRange]).trimmingCharacters(in: .whitespaces)
             
             // Skip empty lines
