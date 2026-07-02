@@ -86,9 +86,6 @@ enum LRCParser {
             let timestampGroup = String(trimmedLine[timestampGroupRange])
             let text = String(trimmedLine[textRange]).trimmingCharacters(in: .whitespaces)
             
-            // Skip empty lyric lines
-            guard !text.isEmpty else { continue }
-            
             // Parse all individual timestamps inside the timestamp group
             let nsGroup = timestampGroup as NSString
             let groupRange = NSRange(location: 0, length: nsGroup.length)
@@ -112,7 +109,8 @@ enum LRCParser {
                 }
                 
                 let timestamp = minutes * 60.0 + seconds + ms
-                result.append(LyricLine(timestamp: timestamp, text: text))
+                let lyricText = text.isEmpty ? " " : text
+                result.append(LyricLine(timestamp: timestamp, text: lyricText))
             }
         }
         
