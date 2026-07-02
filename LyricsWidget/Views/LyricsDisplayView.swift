@@ -5,6 +5,7 @@ import SwiftUI
 /// Full-screen view showing all lyrics for a song.
 /// The user can scroll through, tap to highlight lines,
 /// and set the song as the active widget content.
+@MainActor
 struct LyricsDisplayView: View {
     @EnvironmentObject var store: LyricsStore
     @Environment(\.dismiss) var dismiss

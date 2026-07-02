@@ -3,7 +3,7 @@ import Foundation
 // MARK: - LRCLIB API Response Models
 
 /// Represents a single track result from the LRCLIB API
-struct LRCSearchResult: Codable, Identifiable, Hashable {
+struct LRCSearchResult: Codable, Identifiable, Hashable, Sendable {
     let id: Int
     let trackName: String
     let artistName: String
@@ -24,7 +24,7 @@ struct LRCSearchResult: Codable, Identifiable, Hashable {
 // MARK: - Parsed Lyric Line
 
 /// A single line of lyrics with a timestamp (parsed from LRC format)
-struct LyricLine: Codable, Identifiable, Equatable {
+struct LyricLine: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     let timestamp: TimeInterval   // seconds from start of song
     let text: String

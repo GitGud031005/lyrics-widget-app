@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - Timeline Entry
 
-struct LyricsEntry: TimelineEntry {
+struct LyricsEntry: TimelineEntry, Sendable {
     let date: Date
     let trackName: String
     let artistName: String
@@ -26,14 +26,14 @@ struct LyricsTimelineProvider: TimelineProvider {
         createSampleEntry()
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (LyricsEntry) -> ()) {
+    func getSnapshot(in context: Context, completion: @escaping @Sendable (LyricsEntry) -> ()) {
         Task { @MainActor in
             let entry = createEntryFromStore()
             completion(entry)
         }
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<Entry>) -> ()) {
         Task { @MainActor in
             let entry = createEntryFromStore()
             

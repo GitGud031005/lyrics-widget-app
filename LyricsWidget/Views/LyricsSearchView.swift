@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Search View
 
 /// Main view: search for songs and pick lyrics to display on the widget
+@MainActor
 struct LyricsSearchView: View {
     @EnvironmentObject var store: LyricsStore
     
@@ -299,6 +300,7 @@ struct LyricsSearchView: View {
     
     // MARK: - Search Logic
     
+    @MainActor
     private func debounceSearch(query: String) {
         searchTask?.cancel()
         
