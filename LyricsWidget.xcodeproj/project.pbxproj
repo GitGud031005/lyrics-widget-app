@@ -13,6 +13,7 @@
 		D3D080B12C00000200000003 /* LyricsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000003 /* LyricsStore.swift */; };
 		D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000004 /* LyricsSearchView.swift */; };
 		D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000005 /* LyricsDisplayView.swift */; };
+		D3D080B12C00000200000006 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000006 /* SettingsView.swift */; };
 		D3D080A92C00000100000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D3D080A82C00000100000003 /* Assets.xcassets */; };
 		D3D080CA2C00000300000001 /* LyricsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000001 /* LyricsWidget.swift */; };
 		D3D080CA2C00000300000002 /* LyricsWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000002 /* LyricsWidgetBundle.swift */; };
@@ -32,6 +33,7 @@
 		D3D080B02C00000200000003 /* LyricsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage/LyricsStore.swift; sourceTree = "<group>"; };
 		D3D080B02C00000200000004 /* LyricsSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsSearchView.swift; sourceTree = "<group>"; };
 		D3D080B02C00000200000005 /* LyricsDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/LyricsDisplayView.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000006 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		D3D080A82C00000100000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LyricsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3D080C92C00000300000001 /* LyricsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidget.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				D3D080B02C00000200000003 /* LyricsStore.swift */,
 				D3D080B02C00000200000004 /* LyricsSearchView.swift */,
 				D3D080B02C00000200000005 /* LyricsDisplayView.swift */,
+				D3D080B02C00000200000006 /* SettingsView.swift */,
 				D3D080C92C00000300000007 /* LyricsWidget.entitlements */,
 				D3D080A82C00000100000003 /* Assets.xcassets */,
 			);
@@ -212,6 +215,7 @@
 				D3D080B12C00000200000003 /* LyricsStore.swift in Sources */,
 				D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */,
 				D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */,
+				D3D080B12C00000200000006 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

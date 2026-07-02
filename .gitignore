@@ -40,3 +40,7 @@ fastlane/test_output
 credentials.local.txt
 *.p12
 *.mobileprovision
+
+# CodeGraph
+.codegraph/
+

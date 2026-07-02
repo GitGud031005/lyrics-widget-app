@@ -6,8 +6,20 @@ struct LyricsWidgetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LyricsSearchView()
-                .environmentObject(store)
+            TabView {
+                LyricsSearchView()
+                    .environmentObject(store)
+                    .tabItem {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                
+                SettingsView()
+                    .environmentObject(store)
+                    .tabItem {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+            }
+            .preferredColorScheme(.dark)
         }
     }
 }

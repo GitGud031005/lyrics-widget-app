@@ -96,15 +96,18 @@ class LyricsStore: ObservableObject {
     // MARK: - Init
     
     private init() {
-        // Load appearance settings with defaults
-        self.backgroundColorHex = UserDefaults.standard.string(forKey: Keys.bgColor) ?? "#1A1A2E"
-        self.textColorHex = UserDefaults.standard.string(forKey: Keys.textColor) ?? "#8888AA"
-        self.highlightColorHex = UserDefaults.standard.string(forKey: Keys.highlightColor) ?? "#E94560"
+        let appGroupID = "group.com.lyrico.LyricsWidget"
+        let groupDefaults = UserDefaults(suiteName: appGroupID) ?? .standard
         
-        let savedFontSize = UserDefaults.standard.double(forKey: Keys.fontSize)
+        // Load appearance settings with defaults
+        self.backgroundColorHex = groupDefaults.string(forKey: Keys.bgColor) ?? "#1A1A2E"
+        self.textColorHex = groupDefaults.string(forKey: Keys.textColor) ?? "#8888AA"
+        self.highlightColorHex = groupDefaults.string(forKey: Keys.highlightColor) ?? "#E94560"
+        
+        let savedFontSize = groupDefaults.double(forKey: Keys.fontSize)
         self.fontSize = savedFontSize == 0 ? 14.0 : savedFontSize
         
-        let savedLinesVisible = UserDefaults.standard.integer(forKey: Keys.linesVisible)
+        let savedLinesVisible = groupDefaults.integer(forKey: Keys.linesVisible)
         self.linesVisible = savedLinesVisible == 0 ? 5 : savedLinesVisible
         
         // Load current song
