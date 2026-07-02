@@ -73,11 +73,11 @@ jobs:
           
           # Ad-hoc sign the Widget Extension with its entitlements first
           echo "=== Ad-hoc signing Widget Extension ==="
-          codesign --force --sign - --entitlements LyricsWidgetExtension/LyricsWidgetExtension.entitlements "package/Payload/$APP_NAME/PlugIns/LyricsWidgetExtension.appex"
+          codesign --force --sign - --generate-entitlement-der --entitlements LyricsWidgetExtension/LyricsWidgetExtension.entitlements "package/Payload/$APP_NAME/PlugIns/LyricsWidgetExtension.appex"
           
           # Ad-hoc sign the Main App with its entitlements
           echo "=== Ad-hoc signing Main App ==="
-          codesign --force --sign - --entitlements LyricsWidget/LyricsWidget.entitlements "package/Payload/$APP_NAME"
+          codesign --force --sign - --generate-entitlement-der --entitlements LyricsWidget/LyricsWidget.entitlements "package/Payload/$APP_NAME"
           
           # Create the IPA file
           cd package
