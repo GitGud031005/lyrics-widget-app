@@ -295,20 +295,37 @@ struct AppGroupHelper {
     static let defaultAppGroupID = "group.com.lyrico.LyricsWidget"
     
     static var appGroupID: String {
-        guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision") else {
-            return fallbackAppGroupID
+        // 1. Try finding in current bundle
+        if let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
+           let group = parseAppGroup(from: url) {
+            return group
         }
         
+        // 2. Try finding in parent app bundle (for Widget Extension)
+        let parentURL = Bundle.main.bundleURL
+            .deletingLastPathComponent() // to PlugIns
+            .deletingLastPathComponent() // to LyricsWidget.app
+            .appendingPathComponent("embedded.mobileprovision")
+        
+        if let group = parseAppGroup(from: parentURL) {
+            return group
+        }
+        
+        // 3. Fallback
+        return fallbackAppGroupID
+    }
+    
+    private static func parseAppGroup(from url: URL) -> String? {
         do {
             let data = try Data(contentsOf: url)
             guard let plistStartData = "<plist".data(using: .utf8),
                   let plistEndData = "</plist>".data(using: .utf8) else {
-                return fallbackAppGroupID
+                return nil
             }
             
             guard let startRange = data.range(of: plistStartData),
                   let endRange = data.range(of: plistEndData, in: startRange.upperBound..<data.count) else {
-                return fallbackAppGroupID
+                return nil
             }
             
             let plistData = data.subdata(in: startRange.lowerBound..<endRange.upperBound)
@@ -330,14 +347,10 @@ struct AppGroupHelper {
             }
             
             let provision = try PropertyListDecoder().decode(MobileProvision.self, from: plistData)
-            if let group = provision.entitlements.appGroups?.first {
-                return group
-            }
+            return provision.entitlements.appGroups?.first
         } catch {
-            // Fall back silently
+            return nil
         }
-        
-        return fallbackAppGroupID
     }
     
     private static var fallbackAppGroupID: String {
