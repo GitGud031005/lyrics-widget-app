@@ -26,12 +26,12 @@ struct LyricsTimelineProvider: TimelineProvider {
         createSampleEntry()
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (LyricsEntry) -> ()) {
+    func getSnapshot(in context: Context, completion: @escaping @Sendable (LyricsEntry) -> ()) {
         let entry = createEntryFromStore()
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<Entry>) -> ()) {
         let entry = createEntryFromStore()
         
         // Refresh only when requested (.never)
