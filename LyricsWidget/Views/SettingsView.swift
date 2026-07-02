@@ -257,6 +257,11 @@ struct SettingsView: View {
             Text("Powered by LRCLIB database")
                 .font(.system(size: 10))
                 .foregroundColor(.gray.opacity(0.7))
+            
+            Text("App Group: \(AppGroupHelper.appGroupID)")
+                .font(.system(size: 10))
+                .foregroundColor(.gray.opacity(0.4))
+                .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)

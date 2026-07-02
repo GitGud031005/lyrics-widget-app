@@ -291,31 +291,27 @@ extension Color {
     }
 }
 
-// MARK: - App Group Sideload Helper
-
 struct AppGroupHelper {
     static let defaultAppGroupID = "group.com.lyrico.LyricsWidget"
     
     static var appGroupID: String {
         guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision") else {
-            return defaultAppGroupID
+            return fallbackAppGroupID
         }
         
         do {
             let data = try Data(contentsOf: url)
-            guard let content = String(data: data, encoding: .isoLatin1) else {
-                return defaultAppGroupID
+            guard let plistStartData = "<plist".data(using: .utf8),
+                  let plistEndData = "</plist>".data(using: .utf8) else {
+                return fallbackAppGroupID
             }
             
-            guard let plistStartRange = content.range(of: "<plist"),
-                  let plistEndRange = content.range(of: "</plist>") else {
-                return defaultAppGroupID
+            guard let startRange = data.range(of: plistStartData),
+                  let endRange = data.range(of: plistEndData, in: startRange.upperBound..<data.count) else {
+                return fallbackAppGroupID
             }
             
-            let plistString = String(content[plistStartRange.lowerBound..<plistEndRange.upperBound])
-            guard let plistData = plistString.data(using: .utf8) else {
-                return defaultAppGroupID
-            }
+            let plistData = data.subdata(in: startRange.lowerBound..<endRange.upperBound)
             
             struct MobileProvision: Decodable {
                 let entitlements: Entitlements
@@ -339,6 +335,22 @@ struct AppGroupHelper {
             }
         } catch {
             // Fall back silently
+        }
+        
+        return fallbackAppGroupID
+    }
+    
+    private static var fallbackAppGroupID: String {
+        guard let bid = Bundle.main.bundleIdentifier else {
+            return defaultAppGroupID
+        }
+        
+        let parts = bid.components(separatedBy: ".")
+        let baseParts = ["com", "lyrico", "LyricsWidget", "LyricsWidgetExtension"]
+        let suffixParts = parts.filter { !baseParts.contains($0) }
+        
+        if let suffix = suffixParts.first, !suffix.isEmpty {
+            return "group.com.lyrico.LyricsWidget." + suffix
         }
         
         return defaultAppGroupID

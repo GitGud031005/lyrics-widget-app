@@ -83,7 +83,7 @@ struct LyricsTimelineProvider: TimelineProvider {
         return LyricsEntry(
             date: Date(),
             trackName: currentSong?.trackName ?? "No Song Selected",
-            artistName: currentSong?.artistName ?? "Open Lyrico to select lyrics",
+            artistName: currentSong?.artistName ?? "App Group: \(appGroupID)",
             lines: currentLines,
             currentIndex: currentLineIndex,
             backgroundColorHex: backgroundColorHex,
