@@ -41,7 +41,7 @@ actor LyricsAPI {
             throw LyricsAPIError.invalidURL
         }
         
-        let (data, response) = try await session.data(from: url)
+        let (data, response) = try await performRequest(to: url)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw LyricsAPIError.requestFailed(statusCode: 0)
@@ -65,7 +65,7 @@ actor LyricsAPI {
             throw LyricsAPIError.invalidURL
         }
         
-        let (data, response) = try await session.data(from: url)
+        let (data, response) = try await performRequest(to: url)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw LyricsAPIError.requestFailed(statusCode: 0)
@@ -107,7 +107,7 @@ actor LyricsAPI {
             throw LyricsAPIError.invalidURL
         }
         
-        let (data, response) = try await session.data(from: url)
+        let (data, response) = try await performRequest(to: url)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw LyricsAPIError.requestFailed(statusCode: 0)
@@ -124,6 +124,19 @@ actor LyricsAPI {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return try decoder.decode(LRCSearchResult.self, from: data)
     }
+    
+    // MARK: - Request Helper
+    
+    private func performRequest(to url: URL) async throws -> (Data, URLResponse) {
+        do {
+            return try await session.data(from: url)
+        } catch let urlError as URLError {
+            if urlError.code == .notConnectedToInternet || urlError.code == .timedOut || urlError.code == .networkConnectionLost {
+                throw LyricsAPIError.offline
+            }
+            throw urlError
+        }
+    }
 }
 
 // MARK: - Error Types
@@ -132,6 +145,7 @@ enum LyricsAPIError: LocalizedError {
     case invalidURL
     case requestFailed(statusCode: Int)
     case decodingFailed
+    case offline
     
     var errorDescription: String? {
         switch self {
@@ -141,6 +155,8 @@ enum LyricsAPIError: LocalizedError {
             return "Request failed (HTTP \(code))"
         case .decodingFailed:
             return "Failed to decode response"
+        case .offline:
+            return "No internet connection. Please check your network settings."
         }
     }
 }
