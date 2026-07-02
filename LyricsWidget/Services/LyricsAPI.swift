@@ -51,9 +51,13 @@ actor LyricsAPI {
             throw LyricsAPIError.requestFailed(statusCode: httpResponse.statusCode)
         }
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode([LRCSearchResult].self, from: data)
+        do {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode([LRCSearchResult].self, from: data)
+        } catch {
+            throw LyricsAPIError.decodingFailed
+        }
     }
     
     // MARK: - Get by ID
@@ -75,9 +79,13 @@ actor LyricsAPI {
             throw LyricsAPIError.requestFailed(statusCode: httpResponse.statusCode)
         }
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode(LRCSearchResult.self, from: data)
+        do {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(LRCSearchResult.self, from: data)
+        } catch {
+            throw LyricsAPIError.decodingFailed
+        }
     }
     
     // MARK: - Get by Metadata
@@ -120,9 +128,13 @@ actor LyricsAPI {
             throw LyricsAPIError.requestFailed(statusCode: httpResponse.statusCode)
         }
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode(LRCSearchResult.self, from: data)
+        do {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(LRCSearchResult.self, from: data)
+        } catch {
+            throw LyricsAPIError.decodingFailed
+        }
     }
     
     // MARK: - Request Helper
