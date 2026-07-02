@@ -81,6 +81,12 @@ class LyricsStore: ObservableObject {
         }
     }
     
+    // MARK: - Default Values
+    
+    static let defaultBgColorHex = "#1A1A2E"
+    static let defaultTextColorHex = "#8888AA"
+    static let defaultHighlightColorHex = "#E94560"
+    
     // MARK: - Keys
     
     private enum Keys {
@@ -104,9 +110,9 @@ class LyricsStore: ObservableObject {
         self.isBatchUpdating = true
         
         // Load appearance settings with defaults
-        self.backgroundColorHex = groupDefaults.string(forKey: Keys.bgColor) ?? "#1A1A2E"
-        self.textColorHex = groupDefaults.string(forKey: Keys.textColor) ?? "#8888AA"
-        self.highlightColorHex = groupDefaults.string(forKey: Keys.highlightColor) ?? "#E94560"
+        self.backgroundColorHex = groupDefaults.string(forKey: Keys.bgColor) ?? LyricsStore.defaultBgColorHex
+        self.textColorHex = groupDefaults.string(forKey: Keys.textColor) ?? LyricsStore.defaultTextColorHex
+        self.highlightColorHex = groupDefaults.string(forKey: Keys.highlightColor) ?? LyricsStore.defaultHighlightColorHex
         
         let savedFontSize = groupDefaults.double(forKey: Keys.fontSize)
         self.fontSize = savedFontSize == 0 ? 14.0 : savedFontSize

@@ -11,14 +11,21 @@ actor LyricsAPI {
     static let shared = LyricsAPI()
     
     private let baseURL = "https://lrclib.net/api"
-    private let session: URLSession
+    private var session: URLSession
+    private let userAgent = "Lyrico iOS App/1.0.0 (https://github.com/GitGud031005/lyrics-widget-app)"
     
-    private init() {
+    private init(timeoutInterval: TimeInterval = 8.0) {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 8.0
-        config.httpAdditionalHeaders = [
-            "User-Agent": "Lyrico iOS App/1.0.0 (https://github.com/GitGud031005/lyrics-widget-app)"
-        ]
+        config.timeoutIntervalForRequest = timeoutInterval
+        config.httpAdditionalHeaders = ["User-Agent": userAgent]
+        self.session = URLSession(configuration: config)
+    }
+    
+    /// Reconfigures the API client's request timeout interval
+    func configure(timeoutInterval: TimeInterval) {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = timeoutInterval
+        config.httpAdditionalHeaders = ["User-Agent": userAgent]
         self.session = URLSession(configuration: config)
     }
     

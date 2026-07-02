@@ -78,9 +78,9 @@ struct LyricsTimelineProvider: TimelineProvider {
             artistName: "Sample Artist",
             lines: sampleLines,
             currentIndex: 1,
-            backgroundColorHex: "#1A1A2E",
-            textColorHex: "#8888AA",
-            highlightColorHex: "#E94560",
+            backgroundColorHex: LyricsStore.defaultBgColorHex,
+            textColorHex: LyricsStore.defaultTextColorHex,
+            highlightColorHex: LyricsStore.defaultHighlightColorHex,
             fontSize: 14.0,
             linesVisible: 5
         )
