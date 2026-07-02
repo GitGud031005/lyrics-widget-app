@@ -294,6 +294,10 @@ extension Color {
 struct AppGroupHelper {
     static let defaultAppGroupID = "group.com.lyrico.LyricsWidget"
     
+    static var isAppGroupAccessible: Bool {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) != nil
+    }
+    
     static var appGroupID: String {
         // 1. Try finding in current bundle
         if let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),

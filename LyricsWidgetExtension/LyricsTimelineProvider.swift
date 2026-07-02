@@ -83,7 +83,7 @@ struct LyricsTimelineProvider: TimelineProvider {
         return LyricsEntry(
             date: Date(),
             trackName: currentSong?.trackName ?? "No Song Selected",
-            artistName: currentSong?.artistName ?? "App Group: \(appGroupID)",
+            artistName: currentSong?.artistName ?? "App Group: \(appGroupID) (\(AppGroupHelper.isAppGroupAccessible ? "OK" : "DENIED"))",
             lines: currentLines,
             currentIndex: currentLineIndex,
             backgroundColorHex: backgroundColorHex,

@@ -258,9 +258,9 @@ struct SettingsView: View {
                 .font(.system(size: 10))
                 .foregroundColor(.gray.opacity(0.7))
             
-            Text("App Group: \(AppGroupHelper.appGroupID)")
+            Text("App Group: \(AppGroupHelper.appGroupID) (\(AppGroupHelper.isAppGroupAccessible ? "OK" : "DENIED"))")
                 .font(.system(size: 10))
-                .foregroundColor(.gray.opacity(0.4))
+                .foregroundColor(AppGroupHelper.isAppGroupAccessible ? .green.opacity(0.6) : .red.opacity(0.6))
                 .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
