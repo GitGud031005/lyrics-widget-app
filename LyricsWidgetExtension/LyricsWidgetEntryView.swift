@@ -61,37 +61,47 @@ struct LyricsWidgetEntryView : View {
     
     private var lyricsWindowView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            let visibleRange = getVisibleLineIndices()
-            
-            ForEach(visibleRange, id: \.self) { index in
-                if index >= 0 && index < entry.lines.count {
-                    let line = entry.lines[index]
-                    let isCurrent = (index == entry.currentIndex)
-                    
-                    Text(line.text)
-                        .font(.system(
-                            size: CGFloat(entry.fontSize),
-                            weight: isCurrent ? .bold : .regular
-                        ))
-                        .foregroundColor(
-                            isCurrent
-                                ? Color(hex: entry.highlightColorHex)
-                                : Color(hex: entry.textColorHex)
-                        )
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 2)
-                        .background(
-                            isCurrent
-                                ? Color(hex: entry.highlightColorHex).opacity(0.1)
-                                : Color.clear
-                        )
-                        .cornerRadius(4)
-                } else {
-                    // Blank lines if song has ended or hasn't started
-                    Text(" ")
-                        .font(.system(size: CGFloat(entry.fontSize)))
-                        .padding(.vertical, 2)
+            if entry.lines.isEmpty {
+                Spacer()
+                Text("Search a song in the app\nto show lyrics here.")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Color(hex: entry.textColorHex).opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                Spacer()
+            } else {
+                let visibleRange = getVisibleLineIndices()
+                
+                ForEach(visibleRange, id: \.self) { index in
+                    if index >= 0 && index < entry.lines.count {
+                        let line = entry.lines[index]
+                        let isCurrent = (index == entry.currentIndex)
+                        
+                        Text(line.text)
+                            .font(.system(
+                                size: CGFloat(entry.fontSize),
+                                weight: isCurrent ? .bold : .regular
+                            ))
+                            .foregroundColor(
+                                isCurrent
+                                    ? Color(hex: entry.highlightColorHex)
+                                    : Color(hex: entry.textColorHex)
+                            )
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 2)
+                            .background(
+                                isCurrent
+                                    ? Color(hex: entry.highlightColorHex).opacity(0.1)
+                                    : Color.clear
+                            )
+                            .cornerRadius(4)
+                    } else {
+                        // Blank lines if song has ended or hasn't started
+                        Text(" ")
+                            .font(.system(size: CGFloat(entry.fontSize)))
+                            .padding(.vertical, 2)
+                    }
                 }
             }
         }
