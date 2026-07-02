@@ -299,24 +299,47 @@ struct AppGroupHelper {
     }
     
     static var appGroupID: String {
-        // 1. Try finding in current bundle
+        // 1. Gather all potential App Group candidates
+        var candidates: [String] = []
+        
+        // Candidate A: Parsed from current bundle profile
         if let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
            let group = parseAppGroup(from: url) {
-            return group
+            candidates.append(group)
         }
         
-        // 2. Try finding in parent app bundle (for Widget Extension)
+        // Candidate B: Parsed from parent app bundle profile (for extensions)
         let parentURL = Bundle.main.bundleURL
             .deletingLastPathComponent() // to PlugIns
             .deletingLastPathComponent() // to LyricsWidget.app
             .appendingPathComponent("embedded.mobileprovision")
         
         if let group = parseAppGroup(from: parentURL) {
-            return group
+            candidates.append(group)
         }
         
-        // 3. Fallback
-        return fallbackAppGroupID
+        // Candidate C: Dynamic Team ID prefixed fallback (Apple Personal Team standard: group.<TeamID>.<AppGroupID>)
+        if let suffix = resigningSuffix, !suffix.isEmpty {
+            candidates.append("group.\(suffix).com.lyrico.LyricsWidget")
+            candidates.append("group.com.lyrico.LyricsWidget.\(suffix)")
+        }
+        
+        // Candidate D: Default fallback
+        candidates.append(defaultAppGroupID)
+        
+        // 2. Query iOS at runtime for the first accessible App Group container
+        let fileManager = FileManager.default
+        for candidate in candidates {
+            if fileManager.containerURL(forSecurityApplicationGroupIdentifier: candidate) != nil {
+                return candidate
+            }
+        }
+        
+        // 3. If none are accessible, fall back to the most likely signed ID
+        if let suffix = resigningSuffix, !suffix.isEmpty {
+            return "group.\(suffix).com.lyrico.LyricsWidget"
+        }
+        return defaultAppGroupID
     }
     
     private static func parseAppGroup(from url: URL) -> String? {
@@ -357,19 +380,15 @@ struct AppGroupHelper {
         }
     }
     
-    private static var fallbackAppGroupID: String {
+    private static var resigningSuffix: String? {
         guard let bid = Bundle.main.bundleIdentifier else {
-            return defaultAppGroupID
+            return nil
         }
         
         let parts = bid.components(separatedBy: ".")
         let baseParts = ["com", "lyrico", "LyricsWidget", "LyricsWidgetExtension"]
         let suffixParts = parts.filter { !baseParts.contains($0) }
         
-        if let suffix = suffixParts.first, !suffix.isEmpty {
-            return "group.com.lyrico.LyricsWidget." + suffix
-        }
-        
-        return defaultAppGroupID
+        return suffixParts.first
     }
 }
