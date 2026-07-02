@@ -69,6 +69,16 @@ jobs:
           mkdir -p package/Payload
           cp -r "$APP_PATH" package/Payload/
           
+          APP_NAME=$(basename "$APP_PATH")
+          
+          # Ad-hoc sign the Widget Extension with its entitlements first
+          echo "=== Ad-hoc signing Widget Extension ==="
+          codesign --force --sign - --entitlements LyricsWidgetExtension/LyricsWidgetExtension.entitlements "package/Payload/$APP_NAME/PlugIns/LyricsWidgetExtension.appex"
+          
+          # Ad-hoc sign the Main App with its entitlements
+          echo "=== Ad-hoc signing Main App ==="
+          codesign --force --sign - --entitlements LyricsWidget/LyricsWidget.entitlements "package/Payload/$APP_NAME"
+          
           # Create the IPA file
           cd package
           zip -r ../LyricsWidget.ipa Payload/
