@@ -42,7 +42,7 @@ struct LyricsTimelineProvider: TimelineProvider {
     // MARK: - Helpers
     
     private func createEntryFromStore() -> LyricsEntry {
-        let appGroupID = "group.com.lyrico.LyricsWidget"
+        let appGroupID = AppGroupHelper.appGroupID
         let defaults = UserDefaults(suiteName: appGroupID) ?? .standard
         
         // Load appearance settings with defaults matching LyricsStore

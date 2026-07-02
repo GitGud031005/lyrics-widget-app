@@ -13,11 +13,8 @@ class LyricsStore: ObservableObject {
     
     // MARK: - App Group Configuration
     
-    /// App Group ID for sharing sandbox data
-    private static let appGroupID = "group.com.lyrico.LyricsWidget"
-    
     private var defaults: UserDefaults {
-        if let groupDefaults = UserDefaults(suiteName: LyricsStore.appGroupID) {
+        if let groupDefaults = UserDefaults(suiteName: AppGroupHelper.appGroupID) {
             return groupDefaults
         }
         return .standard
@@ -105,7 +102,7 @@ class LyricsStore: ObservableObject {
     private var isBatchUpdating = false
     
     private init() {
-        let groupDefaults = UserDefaults(suiteName: LyricsStore.appGroupID) ?? .standard
+        let groupDefaults = UserDefaults(suiteName: AppGroupHelper.appGroupID) ?? .standard
         
         self.isBatchUpdating = true
         
@@ -291,5 +288,59 @@ extension Color {
         }
         
         self.init(red: r, green: g, blue: b, opacity: a)
+    }
+}
+
+// MARK: - App Group Sideload Helper
+
+struct AppGroupHelper {
+    static let defaultAppGroupID = "group.com.lyrico.LyricsWidget"
+    
+    static var appGroupID: String {
+        guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision") else {
+            return defaultAppGroupID
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            guard let content = String(data: data, encoding: .isoLatin1) else {
+                return defaultAppGroupID
+            }
+            
+            guard let plistStartRange = content.range(of: "<plist"),
+                  let plistEndRange = content.range(of: "</plist>") else {
+                return defaultAppGroupID
+            }
+            
+            let plistString = String(content[plistStartRange.lowerBound..<plistEndRange.upperBound])
+            guard let plistData = plistString.data(using: .utf8) else {
+                return defaultAppGroupID
+            }
+            
+            struct MobileProvision: Decodable {
+                let entitlements: Entitlements
+                
+                enum CodingKeys: String, CodingKey {
+                    case entitlements = "Entitlements"
+                }
+                
+                struct Entitlements: Decodable {
+                    let appGroups: [String]?
+                    
+                    enum CodingKeys: String, CodingKey {
+                        case appGroups = "com.apple.security.application-groups"
+                    }
+                }
+            }
+            
+            let provision = try PropertyListDecoder().decode(MobileProvision.self, from: plistData)
+            if let group = provision.entitlements.appGroups?.first {
+                return group
+            }
+        } catch {
+            // Fall back silently
+        }
+        
+        return defaultAppGroupID
     }
 }
