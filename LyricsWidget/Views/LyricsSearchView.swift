@@ -20,9 +20,9 @@ struct LyricsSearchView: View {
                 // Background gradient
                 LinearGradient(
                     colors: [
-                        Color(hex: "#0F0F1A"),
-                        Color(hex: "#1A1A2E"),
-                        Color(hex: "#16213E")
+                        Color.lyricBg,
+                        Color.lyricCardBg,
+                        Color.lyricBgSecondary
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -132,7 +132,7 @@ struct LyricsSearchView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(
                             LinearGradient(
-                                colors: [Color(hex: "#E94560"), Color(hex: "#C23152")],
+                                colors: [Color.lyricHighlight, Color.lyricHighlightDark],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -171,7 +171,7 @@ struct LyricsSearchView: View {
                     if result.syncedLyrics != nil {
                         Label("Synced", systemImage: "clock")
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Color(hex: "#4ECCA3"))
+                            .foregroundColor(Color.lyricGreen)
                     } else if result.plainLyrics != nil {
                         Label("Plain", systemImage: "text.alignleft")
                             .font(.system(size: 11, weight: .medium))
@@ -213,7 +213,7 @@ struct LyricsSearchView: View {
                 .font(.system(size: 60))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [Color(hex: "#E94560"), Color(hex: "#4ECCA3")],
+                        colors: [Color.lyricHighlight, Color.lyricGreen],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -240,7 +240,7 @@ struct LyricsSearchView: View {
                     
                     Text("\(song.trackName) — \(song.artistName)")
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(Color(hex: "#4ECCA3"))
+                        .foregroundColor(Color.lyricGreen)
                         .multilineTextAlignment(.center)
                 }
             }
@@ -254,7 +254,7 @@ struct LyricsSearchView: View {
         VStack(spacing: 16) {
             Spacer()
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color(hex: "#E94560")))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.lyricHighlight))
                 .scaleEffect(1.2)
             Text("Searching...")
                 .font(.system(size: 16))
@@ -274,7 +274,7 @@ struct LyricsSearchView: View {
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
             Button("Try Again") { performSearch() }
-                .foregroundColor(Color(hex: "#E94560"))
+                .foregroundColor(Color.lyricHighlight)
                 .font(.system(size: 16, weight: .semibold))
             Spacer()
         }

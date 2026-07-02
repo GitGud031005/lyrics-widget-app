@@ -19,7 +19,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "#0F0F1A").ignoresSafeArea()
+                Color.lyricBg.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -166,17 +166,17 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 // Background Hex input
-                customColorRow(title: "Background Hex", hex: $localBgHex, onCommit: { applyHexIfValid(localBgHex, to: \.backgroundColorHex) })
+                customColorRow(title: "Background Hex", hex: $localBgHex, onCommit: { applyHexIfValid($localBgHex, to: \.backgroundColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Text Hex
-                customColorRow(title: "Text Hex", hex: $localTextHex, onCommit: { applyHexIfValid(localTextHex, to: \.textColorHex) })
+                customColorRow(title: "Text Hex", hex: $localTextHex, onCommit: { applyHexIfValid($localTextHex, to: \.textColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Highlight Hex
-                customColorRow(title: "Highlight Hex", hex: $localHighlightHex, onCommit: { applyHexIfValid(localHighlightHex, to: \.highlightColorHex) })
+                customColorRow(title: "Highlight Hex", hex: $localHighlightHex, onCommit: { applyHexIfValid($localHighlightHex, to: \.highlightColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
@@ -282,7 +282,8 @@ struct SettingsView: View {
                store.highlightColorHex.uppercased() == theme.highlight.uppercased()
     }
     
-    private func applyHexIfValid(_ hex: String, to keyPath: ReferenceWritableKeyPath<LyricsStore, String>) {
+    private func applyHexIfValid(_ hexBinding: Binding<String>, to keyPath: ReferenceWritableKeyPath<LyricsStore, String>) {
+        let hex = hexBinding.wrappedValue
         var cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         if !cleanHex.hasPrefix("#") {
             cleanHex = "#" + cleanHex
@@ -294,6 +295,10 @@ struct SettingsView: View {
             withAnimation {
                 store[keyPath] = cleanHex
             }
+            hexBinding.wrappedValue = cleanHex
+        } else {
+            // Revert back to the store's current value on validation failure
+            hexBinding.wrappedValue = store[keyPath]
         }
     }
     

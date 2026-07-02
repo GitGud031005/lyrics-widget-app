@@ -21,8 +21,8 @@ struct LyricsDisplayView: View {
             // Background
             LinearGradient(
                 colors: [
-                    Color(hex: "#0F0F1A"),
-                    Color(hex: "#1A1A2E")
+                    Color.lyricBg,
+                    Color.lyricCardBg
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -74,7 +74,7 @@ struct LyricsDisplayView: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [Color(hex: "#E94560"), Color(hex: "#C23152")],
+                            colors: [Color.lyricHighlight, Color.lyricHighlightDark],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -105,7 +105,7 @@ struct LyricsDisplayView: View {
             // Tags
             HStack(spacing: 8) {
                 if song.syncedLyrics != nil {
-                    tagView(text: "Synced", color: Color(hex: "#4ECCA3"))
+                    tagView(text: "Synced", color: Color.lyricGreen)
                 }
                 if song.plainLyrics != nil {
                     tagView(text: "Plain Text", color: .orange)
@@ -154,7 +154,7 @@ struct LyricsDisplayView: View {
                                     .font(.system(size: 12, design: .monospaced))
                                     .foregroundColor(
                                         index == highlightedIndex
-                                            ? Color(hex: "#E94560")
+                                            ? Color.lyricHighlight
                                             : .gray.opacity(0.4)
                                     )
                                     .frame(width: 40, alignment: .trailing)
@@ -179,7 +179,7 @@ struct LyricsDisplayView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(
                                         index == highlightedIndex
-                                            ? Color(hex: "#E94560").opacity(0.1)
+                                            ? Color.lyricHighlight.opacity(0.1)
                                             : Color.clear
                                     )
                             )
@@ -251,9 +251,9 @@ struct LyricsDisplayView: View {
                     RoundedRectangle(cornerRadius: 14)
                         .fill(
                             isSetAsWidget
-                                ? AnyShapeStyle(Color(hex: "#4ECCA3"))
+                                ? AnyShapeStyle(Color.lyricGreen)
                                 : AnyShapeStyle(LinearGradient(
-                                    colors: [Color(hex: "#E94560"), Color(hex: "#C23152")],
+                                    colors: [Color.lyricHighlight, Color.lyricHighlightDark],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
@@ -264,7 +264,7 @@ struct LyricsDisplayView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-        .background(Color(hex: "#0F0F1A").opacity(0.95))
+        .background(Color.lyricBg.opacity(0.95))
     }
     
     // MARK: - Actions
@@ -289,7 +289,7 @@ struct LyricsDisplayView: View {
             
             HStack(spacing: 10) {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color(hex: "#4ECCA3"))
+                    .foregroundColor(Color.lyricGreen)
                 Text("Lyrics saved to widget!")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(.white)
@@ -298,10 +298,10 @@ struct LyricsDisplayView: View {
             .padding(.vertical, 14)
             .background(
                 Capsule()
-                    .fill(Color(hex: "#1A1A2E"))
+                    .fill(Color.lyricCardBg)
                     .overlay(
                         Capsule()
-                            .stroke(Color(hex: "#4ECCA3").opacity(0.3), lineWidth: 1)
+                            .stroke(Color.lyricGreen.opacity(0.3), lineWidth: 1)
                     )
                     .shadow(color: .black.opacity(0.3), radius: 10)
             )

@@ -27,20 +27,25 @@ struct LyricsTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (LyricsEntry) -> ()) {
-        let entry = createEntryFromStore()
-        completion(entry)
+        Task { @MainActor in
+            let entry = createEntryFromStore()
+            completion(entry)
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let entry = createEntryFromStore()
-        
-        // Refresh only when requested (.never)
-        let timeline = Timeline(entries: [entry], policy: .never)
-        completion(timeline)
+        Task { @MainActor in
+            let entry = createEntryFromStore()
+            
+            // Refresh only when requested (.never)
+            let timeline = Timeline(entries: [entry], policy: .never)
+            completion(timeline)
+        }
     }
     
     // MARK: - Helpers
     
+    @MainActor
     private func createEntryFromStore() -> LyricsEntry {
         let store = LyricsStore.shared
         

@@ -14,11 +14,10 @@ class LyricsStore: ObservableObject {
     // MARK: - App Group Configuration
     
     /// App Group ID for sharing sandbox data
-    private let appGroupID: String? = "group.com.lyrico.LyricsWidget"
+    private static let appGroupID = "group.com.lyrico.LyricsWidget"
     
     private var defaults: UserDefaults {
-        if let groupID = appGroupID,
-           let groupDefaults = UserDefaults(suiteName: groupID) {
+        if let groupDefaults = UserDefaults(suiteName: LyricsStore.appGroupID) {
             return groupDefaults
         }
         return .standard
@@ -100,8 +99,7 @@ class LyricsStore: ObservableObject {
     private var isBatchUpdating = false
     
     private init() {
-        let appGroupID = "group.com.lyrico.LyricsWidget"
-        let groupDefaults = UserDefaults(suiteName: appGroupID) ?? .standard
+        let groupDefaults = UserDefaults(suiteName: LyricsStore.appGroupID) ?? .standard
         
         self.isBatchUpdating = true
         
@@ -151,7 +149,7 @@ class LyricsStore: ObservableObject {
             // Fallback: Parse plain lyrics line-by-line so they are scrollable on the widget
             return plain.components(separatedBy: "\n")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty }
+                .map { $0.isEmpty ? " " : $0 }
                 .enumerated()
                 .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
         }
@@ -245,6 +243,14 @@ class LyricsStore: ObservableObject {
 // MARK: - Color Helpers
 
 extension Color {
+    static let lyricBg = Color(hex: "#0F0F1A")
+    static let lyricBgSecondary = Color(hex: "#16213E")
+    static let lyricCardBg = Color(hex: "#1A1A2E")
+    static let lyricHighlight = Color(hex: "#E94560")
+    static let lyricHighlightDark = Color(hex: "#C23152")
+    static let lyricGreen = Color(hex: "#4ECCA3")
+    static let lyricGray = Color(hex: "#8888AA")
+
     /// Create a Color from a hex string like "#FF5733" or "#FF573380" (with alpha)
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
