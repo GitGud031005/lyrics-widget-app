@@ -29,7 +29,7 @@ class LyricsStore: ObservableObject {
     @Published var currentSong: LRCSearchResult? {
         didSet {
             persistSong()
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
@@ -40,7 +40,7 @@ class LyricsStore: ObservableObject {
     @Published var currentLineIndex: Int = 0 {
         didSet {
             defaults.set(currentLineIndex, forKey: Keys.lineIndex)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
@@ -49,35 +49,35 @@ class LyricsStore: ObservableObject {
     @Published var backgroundColorHex: String {
         didSet {
             defaults.set(backgroundColorHex, forKey: Keys.bgColor)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
     @Published var textColorHex: String {
         didSet {
             defaults.set(textColorHex, forKey: Keys.textColor)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
     @Published var highlightColorHex: String {
         didSet {
             defaults.set(highlightColorHex, forKey: Keys.highlightColor)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
     @Published var fontSize: Double {
         didSet {
             defaults.set(fontSize, forKey: Keys.fontSize)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
     @Published var linesVisible: Int {
         didSet {
             defaults.set(linesVisible, forKey: Keys.linesVisible)
-            reloadWidget()
+            if !isBatchUpdating { reloadWidget() }
         }
     }
     
@@ -95,9 +95,14 @@ class LyricsStore: ObservableObject {
     
     // MARK: - Init
     
+    /// Flag to temporarily suspend widget timeline reloads during batch updates.
+    private var isBatchUpdating = false
+    
     private init() {
         let appGroupID = "group.com.lyrico.LyricsWidget"
         let groupDefaults = UserDefaults(suiteName: appGroupID) ?? .standard
+        
+        self.isBatchUpdating = true
         
         // Load appearance settings with defaults
         self.backgroundColorHex = groupDefaults.string(forKey: Keys.bgColor) ?? "#1A1A2E"
@@ -112,15 +117,30 @@ class LyricsStore: ObservableObject {
         
         // Load current song
         loadSong()
+        
+        self.isBatchUpdating = false
     }
     
     // MARK: - Song Persistence
     
     /// Save a song as the active widget song
-    func selectSong(_ song: LRCSearchResult) {
-        self.currentSong = song
-        self.currentLines = parseLines(for: song)
-        self.currentLineIndex = 0
+    func selectSong(_ song: LRCSearchResult, initialIndex: Int = 0) {
+        performBatchUpdate {
+            self.currentSong = song
+            self.currentLines = parseLines(for: song)
+            self.currentLineIndex = initialIndex
+        }
+    }
+    
+    /// Update multiple properties in a single transaction, reloading the widget exactly once
+    func performBatchUpdate(_ updates: () -> Void) {
+        let wasBatchUpdating = isBatchUpdating
+        isBatchUpdating = true
+        updates()
+        isBatchUpdating = wasBatchUpdating
+        if !isBatchUpdating {
+            reloadWidget()
+        }
     }
     
     private func parseLines(for song: LRCSearchResult) -> [LyricLine] {
@@ -165,25 +185,54 @@ class LyricsStore: ObservableObject {
     // MARK: - Widget Control
     
     /// Advance to the next lyric line
-    func advanceLine() {
+    func advanceLine(reload: Bool = true) {
         guard !currentLines.isEmpty else { return }
-        currentLineIndex = min(currentLineIndex + 1, currentLines.count - 1)
+        if reload {
+            currentLineIndex = min(currentLineIndex + 1, currentLines.count - 1)
+        } else {
+            let wasBatchUpdating = isBatchUpdating
+            isBatchUpdating = true
+            currentLineIndex = min(currentLineIndex + 1, currentLines.count - 1)
+            isBatchUpdating = wasBatchUpdating
+        }
     }
     
     /// Go back to the previous lyric line
-    func previousLine() {
-        currentLineIndex = max(currentLineIndex - 1, 0)
+    func previousLine(reload: Bool = true) {
+        guard !currentLines.isEmpty else { return }
+        if reload {
+            currentLineIndex = max(currentLineIndex - 1, 0)
+        } else {
+            let wasBatchUpdating = isBatchUpdating
+            isBatchUpdating = true
+            currentLineIndex = max(currentLineIndex - 1, 0)
+            isBatchUpdating = wasBatchUpdating
+        }
     }
     
     /// Jump to a specific line
-    func jumpToLine(_ index: Int) {
+    func jumpToLine(_ index: Int, reload: Bool = true) {
         guard index >= 0 && index < currentLines.count else { return }
-        currentLineIndex = index
+        if reload {
+            currentLineIndex = index
+        } else {
+            let wasBatchUpdating = isBatchUpdating
+            isBatchUpdating = true
+            currentLineIndex = index
+            isBatchUpdating = wasBatchUpdating
+        }
     }
     
     /// Reset to the beginning
-    func resetPosition() {
-        currentLineIndex = 0
+    func resetPosition(reload: Bool = true) {
+        if reload {
+            currentLineIndex = 0
+        } else {
+            let wasBatchUpdating = isBatchUpdating
+            isBatchUpdating = true
+            currentLineIndex = 0
+            isBatchUpdating = wasBatchUpdating
+        }
     }
     
     /// Trigger a reload of all active widgets on the home screen

@@ -59,42 +59,61 @@ enum LRCParser {
         let lines = lrcString.components(separatedBy: "\n")
         var result: [LyricLine] = []
         
-        // Match patterns like [01:23.45], [01:23:45] or [01:23] (milliseconds/centiseconds are optional)
-        let pattern = #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]\s*(.*)"#
+        // Matches one or more timestamp patterns at the start, followed by the remaining text
+        let pattern = #"^((?:\[\d{1,2}:\d{2}(?:[\.:]\d{2,3})?\]\s*)+)(.*)"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else {
             return []
         }
         
+        let timePattern = #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]"#
+        guard let timeRegex = try? NSRegularExpression(pattern: timePattern) else {
+            return []
+        }
+        
         for line in lines {
-            let range = NSRange(line.startIndex..., in: line)
-            guard let match = regex.firstMatch(in: line, range: range) else {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            let range = NSRange(trimmedLine.startIndex..., in: trimmedLine)
+            
+            guard let match = regex.firstMatch(in: trimmedLine, range: range) else {
                 continue
             }
             
-            guard let minRange = Range(match.range(at: 1), in: line),
-                  let secRange = Range(match.range(at: 2), in: line),
-                  let textRange = Range(match.range(at: 4), in: line) else {
+            guard let timestampGroupRange = Range(match.range(at: 1), in: trimmedLine),
+                  let textRange = Range(match.range(at: 2), in: trimmedLine) else {
                 continue
             }
             
-            let minutes = Double(line[minRange]) ?? 0
-            let seconds = Double(line[secRange]) ?? 0
+            let timestampGroup = String(trimmedLine[timestampGroupRange])
+            let text = String(trimmedLine[textRange]).trimmingCharacters(in: .whitespaces)
             
-            var ms: Double = 0
-            if let msRange = Range(match.range(at: 3), in: line) {
-                let msString = String(line[msRange])
-                let rawMs = Double(msString) ?? 0
-                let msDivisor: Double = msString.count >= 3 ? 1000.0 : 100.0
-                ms = rawMs / msDivisor
-            }
-            
-            let timestamp = minutes * 60.0 + seconds + ms
-            let text = String(line[textRange]).trimmingCharacters(in: .whitespaces)
-            
-            // Skip empty lines
+            // Skip empty lyric lines
             guard !text.isEmpty else { continue }
             
-            result.append(LyricLine(timestamp: timestamp, text: text))
+            // Parse all individual timestamps inside the timestamp group
+            let nsGroup = timestampGroup as NSString
+            let groupRange = NSRange(location: 0, length: nsGroup.length)
+            let timeMatches = timeRegex.matches(in: timestampGroup, range: groupRange)
+            
+            for timeMatch in timeMatches {
+                guard let minRange = Range(timeMatch.range(at: 1), in: timestampGroup),
+                      let secRange = Range(timeMatch.range(at: 2), in: timestampGroup) else {
+                    continue
+                }
+                
+                let minutes = Double(timestampGroup[minRange]) ?? 0
+                let seconds = Double(timestampGroup[secRange]) ?? 0
+                
+                var ms: Double = 0
+                if let msRange = Range(timeMatch.range(at: 3), in: timestampGroup) {
+                    let msString = String(timestampGroup[msRange])
+                    let rawMs = Double(msString) ?? 0
+                    let msDivisor: Double = msString.count >= 3 ? 1000.0 : 100.0
+                    ms = rawMs / msDivisor
+                }
+                
+                let timestamp = minutes * 60.0 + seconds + ms
+                result.append(LyricLine(timestamp: timestamp, text: text))
+            }
         }
         
         return result.sorted { $0.timestamp < $1.timestamp }

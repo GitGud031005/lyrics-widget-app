@@ -11,7 +11,7 @@ struct AdvanceLineIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         await MainActor.run {
-            LyricsStore.shared.advanceLine()
+            LyricsStore.shared.advanceLine(reload: false)
         }
         return .result()
     }
@@ -27,7 +27,7 @@ struct PreviousLineIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         await MainActor.run {
-            LyricsStore.shared.previousLine()
+            LyricsStore.shared.previousLine(reload: false)
         }
         return .result()
     }
@@ -43,7 +43,7 @@ struct ResetLineIntent: AppIntent {
     
     func perform() async throws -> some IntentResult {
         await MainActor.run {
-            LyricsStore.shared.resetPosition()
+            LyricsStore.shared.resetPosition(reload: false)
         }
         return .result()
     }

@@ -3,6 +3,10 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var store: LyricsStore
     
+    @State private var localBgHex: String = ""
+    @State private var localTextHex: String = ""
+    @State private var localHighlightHex: String = ""
+    
     // Preset themes
     private let themes = [
         Theme(name: "Midnight", bg: "#1A1A2E", text: "#8888AA", highlight: "#E94560"),
@@ -36,6 +40,11 @@ struct SettingsView: View {
             }
             .navigationTitle("Widget Settings")
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .onAppear {
+                localBgHex = store.backgroundColorHex
+                localTextHex = store.textColorHex
+                localHighlightHex = store.highlightColorHex
+            }
         }
     }
     
@@ -157,17 +166,17 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 // Background Hex input
-                customColorRow(title: "Background Hex", hex: $store.backgroundColorHex)
+                customColorRow(title: "Background Hex", hex: $localBgHex, onCommit: { applyHexIfValid(localBgHex, to: \.backgroundColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Text Hex
-                customColorRow(title: "Text Hex", hex: $store.textColorHex)
+                customColorRow(title: "Text Hex", hex: $localTextHex, onCommit: { applyHexIfValid(localTextHex, to: \.textColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Highlight Hex
-                customColorRow(title: "Highlight Hex", hex: $store.highlightColorHex)
+                customColorRow(title: "Highlight Hex", hex: $localHighlightHex, onCommit: { applyHexIfValid(localHighlightHex, to: \.highlightColorHex) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
@@ -211,7 +220,7 @@ struct SettingsView: View {
         }
     }
     
-    private func customColorRow(title: String, hex: Binding<String>) -> some View {
+    private func customColorRow(title: String, hex: Binding<String>, onCommit: @escaping () -> Void) -> some View {
         HStack {
             Text(title)
                 .foregroundColor(.white)
@@ -224,6 +233,7 @@ struct SettingsView: View {
                 .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
             
             TextField("#FFFFFF", text: hex)
+                .onSubmit(onCommit)
                 .frame(width: 80)
                 .multilineTextAlignment(.trailing)
                 .foregroundColor(.gray)
@@ -255,9 +265,14 @@ struct SettingsView: View {
     
     private func applyTheme(_ theme: Theme) {
         withAnimation {
-            store.backgroundColorHex = theme.bg
-            store.textColorHex = theme.text
-            store.highlightColorHex = theme.highlight
+            store.performBatchUpdate {
+                store.backgroundColorHex = theme.bg
+                store.textColorHex = theme.text
+                store.highlightColorHex = theme.highlight
+            }
+            localBgHex = theme.bg
+            localTextHex = theme.text
+            localHighlightHex = theme.highlight
         }
     }
     
@@ -265,6 +280,19 @@ struct SettingsView: View {
         return store.backgroundColorHex.uppercased() == theme.bg.uppercased() &&
                store.textColorHex.uppercased() == theme.text.uppercased() &&
                store.highlightColorHex.uppercased() == theme.highlight.uppercased()
+    }
+    
+    private func applyHexIfValid(_ hex: String, to keyPath: ReferenceWritableKeyPath<LyricsStore, String>) {
+        var cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !cleanHex.hasPrefix("#") {
+            cleanHex = "#" + cleanHex
+        }
+        let hexVal = cleanHex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        if hexVal.count == 6 || hexVal.count == 8 {
+            withAnimation {
+                store[keyPath] = cleanHex
+            }
+        }
     }
     
     struct Theme: Identifiable {

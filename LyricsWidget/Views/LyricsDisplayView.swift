@@ -270,8 +270,7 @@ struct LyricsDisplayView: View {
     // MARK: - Actions
     
     private func setAsWidget() {
-        store.selectSong(song)
-        store.currentLineIndex = highlightedIndex
+        store.selectSong(song, initialIndex: highlightedIndex)
         
         isSetAsWidget = true
         showConfirmation = true

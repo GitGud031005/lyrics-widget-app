@@ -58,6 +58,10 @@ struct LyricsSearchView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onDisappear {
+            searchTask?.cancel()
+            isLoading = false
+        }
     }
     
     // MARK: - Search Bar
