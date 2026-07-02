@@ -26,40 +26,71 @@ struct LyricsTimelineProvider: TimelineProvider {
         createSampleEntry()
     }
 
-    func getSnapshot(in context: Context, completion: @escaping @Sendable (LyricsEntry) -> ()) {
-        Task { @MainActor in
-            let entry = createEntryFromStore()
-            completion(entry)
-        }
+    func getSnapshot(in context: Context, completion: @escaping (LyricsEntry) -> ()) {
+        let entry = createEntryFromStore()
+        completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<Entry>) -> ()) {
-        Task { @MainActor in
-            let entry = createEntryFromStore()
-            
-            // Refresh only when requested (.never)
-            let timeline = Timeline(entries: [entry], policy: .never)
-            completion(timeline)
-        }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        let entry = createEntryFromStore()
+        
+        // Refresh only when requested (.never)
+        let timeline = Timeline(entries: [entry], policy: .never)
+        completion(timeline)
     }
     
     // MARK: - Helpers
     
-    @MainActor
     private func createEntryFromStore() -> LyricsEntry {
-        let store = LyricsStore.shared
+        let appGroupID = "group.com.lyrico.LyricsWidget"
+        let defaults = UserDefaults(suiteName: appGroupID) ?? .standard
+        
+        // Load appearance settings with defaults matching LyricsStore
+        let backgroundColorHex = defaults.string(forKey: "widgetBgColor") ?? "#1A1A2E"
+        let textColorHex = defaults.string(forKey: "widgetTextColor") ?? "#8888AA"
+        let highlightColorHex = defaults.string(forKey: "widgetHighlightColor") ?? "#E94560"
+        
+        let savedFontSize = defaults.double(forKey: "widgetFontSize")
+        let fontSize = savedFontSize == 0 ? 14.0 : savedFontSize
+        
+        let savedLinesVisible = defaults.integer(forKey: "widgetLinesVisible")
+        let linesVisible = savedLinesVisible == 0 ? 5 : savedLinesVisible
+        
+        // Load current song
+        var currentSong: LRCSearchResult? = nil
+        var currentLines: [LyricLine] = []
+        if let data = defaults.data(forKey: "currentSongData") {
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            if let song = try? decoder.decode(LRCSearchResult.self, from: data) {
+                currentSong = song
+                
+                // Parse lines
+                if let synced = song.syncedLyrics {
+                    currentLines = LRCParser.parse(synced)
+                } else if let plain = song.plainLyrics, !plain.isEmpty {
+                    currentLines = plain.components(separatedBy: "\n")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .map { $0.isEmpty ? " " : $0 }
+                        .enumerated()
+                        .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
+                }
+            }
+        }
+        
+        let currentLineIndex = defaults.integer(forKey: "currentLineIndex")
         
         return LyricsEntry(
             date: Date(),
-            trackName: store.currentSong?.trackName ?? "No Song Selected",
-            artistName: store.currentSong?.artistName ?? "Open Lyrico to select lyrics",
-            lines: store.currentLines,
-            currentIndex: store.currentLineIndex,
-            backgroundColorHex: store.backgroundColorHex,
-            textColorHex: store.textColorHex,
-            highlightColorHex: store.highlightColorHex,
-            fontSize: store.fontSize,
-            linesVisible: store.linesVisible
+            trackName: currentSong?.trackName ?? "No Song Selected",
+            artistName: currentSong?.artistName ?? "Open Lyrico to select lyrics",
+            lines: currentLines,
+            currentIndex: currentLineIndex,
+            backgroundColorHex: backgroundColorHex,
+            textColorHex: textColorHex,
+            highlightColorHex: highlightColorHex,
+            fontSize: fontSize,
+            linesVisible: linesVisible
         )
     }
     
