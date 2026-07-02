@@ -167,17 +167,17 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 // Background Hex input
-                customColorRow(title: "Background Hex", hex: $localBgHex, onCommit: { applyHexIfValid($localBgHex, to: \.backgroundColorHex) })
+                customColorRow(title: "Background Hex", hex: $localBgHex, onCommit: { applyHexIfValid($localBgHex, field: .background) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Text Hex
-                customColorRow(title: "Text Hex", hex: $localTextHex, onCommit: { applyHexIfValid($localTextHex, to: \.textColorHex) })
+                customColorRow(title: "Text Hex", hex: $localTextHex, onCommit: { applyHexIfValid($localTextHex, field: .text) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
                 // Highlight Hex
-                customColorRow(title: "Highlight Hex", hex: $localHighlightHex, onCommit: { applyHexIfValid($localHighlightHex, to: \.highlightColorHex) })
+                customColorRow(title: "Highlight Hex", hex: $localHighlightHex, onCommit: { applyHexIfValid($localHighlightHex, field: .highlight) })
                 
                 Divider().background(Color.white.opacity(0.08)).padding(.leading, 16)
                 
@@ -283,7 +283,13 @@ struct SettingsView: View {
                store.highlightColorHex.uppercased() == theme.highlight.uppercased()
     }
     
-    private func applyHexIfValid(_ hexBinding: Binding<String>, to keyPath: ReferenceWritableKeyPath<LyricsStore, String>) {
+    private enum ColorField {
+        case background
+        case text
+        case highlight
+    }
+    
+    private func applyHexIfValid(_ hexBinding: Binding<String>, field: ColorField) {
         let hex = hexBinding.wrappedValue
         var cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         if !cleanHex.hasPrefix("#") {
@@ -294,12 +300,28 @@ struct SettingsView: View {
         if (hexVal.count == 6 || hexVal.count == 8) &&
            CharacterSet(charactersIn: hexVal).isSubset(of: hexCharacters) {
             withAnimation {
-                store[keyPath] = cleanHex
+                switch field {
+                case .background:
+                    store.backgroundColorHex = cleanHex
+                case .text:
+                    store.textColorHex = cleanHex
+                case .highlight:
+                    store.highlightColorHex = cleanHex
+                }
             }
             hexBinding.wrappedValue = cleanHex
         } else {
             // Revert back to the store's current value on validation failure
-            hexBinding.wrappedValue = store[keyPath]
+            let fallback: String
+            switch field {
+            case .background:
+                fallback = store.backgroundColorHex
+            case .text:
+                fallback = store.textColorHex
+            case .highlight:
+                fallback = store.highlightColorHex
+            }
+            hexBinding.wrappedValue = fallback
         }
     }
     
