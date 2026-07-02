@@ -323,23 +323,21 @@ struct LyricsSearchView: View {
         isLoading = true
         errorMessage = nil
         
-        Task {
+        searchTask?.cancel()
+        
+        searchTask = Task {
             do {
                 let searchResults = try await LyricsAPI.shared.search(query: query)
                 
                 guard !Task.isCancelled else { return }
                 
-                await MainActor.run {
-                    self.results = searchResults
-                    self.isLoading = false
-                }
+                self.results = searchResults
+                self.isLoading = false
             } catch {
                 guard !Task.isCancelled else { return }
                 
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
-                }
+                self.errorMessage = error.localizedDescription
+                self.isLoading = false
             }
         }
     }
