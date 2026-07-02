@@ -7,6 +7,7 @@ import WidgetKit
 /// Central storage for lyrics data and widget settings.
 /// Uses UserDefaults with an App Group suite so both the main app
 /// and the widget extension can read/write the same data.
+@MainActor
 class LyricsStore: ObservableObject {
     static let shared = LyricsStore()
     
@@ -149,7 +150,7 @@ class LyricsStore: ObservableObject {
         } else if let plain = song.plainLyrics, !plain.isEmpty {
             // Fallback: Parse plain lyrics line-by-line so they are scrollable on the widget
             return plain.components(separatedBy: "\n")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
                 .enumerated()
                 .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
