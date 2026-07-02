@@ -119,12 +119,22 @@ class LyricsStore: ObservableObject {
     /// Save a song as the active widget song
     func selectSong(_ song: LRCSearchResult) {
         self.currentSong = song
-        if let synced = song.syncedLyrics {
-            self.currentLines = LRCParser.parse(synced)
-        } else {
-            self.currentLines = []
-        }
+        self.currentLines = parseLines(for: song)
         self.currentLineIndex = 0
+    }
+    
+    private func parseLines(for song: LRCSearchResult) -> [LyricLine] {
+        if let synced = song.syncedLyrics {
+            return LRCParser.parse(synced)
+        } else if let plain = song.plainLyrics, !plain.isEmpty {
+            // Fallback: Parse plain lyrics line-by-line so they are scrollable on the widget
+            return plain.components(separatedBy: "\n")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+                .enumerated()
+                .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
+        }
+        return []
     }
     
     private func persistSong() {
@@ -148,9 +158,7 @@ class LyricsStore: ObservableObject {
         guard let song = try? decoder.decode(LRCSearchResult.self, from: data) else { return }
         
         self.currentSong = song
-        if let synced = song.syncedLyrics {
-            self.currentLines = LRCParser.parse(synced)
-        }
+        self.currentLines = parseLines(for: song)
         self.currentLineIndex = defaults.integer(forKey: Keys.lineIndex)
     }
     
