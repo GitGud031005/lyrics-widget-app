@@ -288,7 +288,9 @@ struct SettingsView: View {
             cleanHex = "#" + cleanHex
         }
         let hexVal = cleanHex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        if hexVal.count == 6 || hexVal.count == 8 {
+        let hexCharacters = CharacterSet(charactersIn: "0123456789ABCDEFabcdef")
+        if (hexVal.count == 6 || hexVal.count == 8) &&
+           CharacterSet(charactersIn: hexVal).isSubset(of: hexCharacters) {
             withAnimation {
                 store[keyPath] = cleanHex
             }
