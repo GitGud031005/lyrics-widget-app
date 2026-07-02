@@ -53,11 +53,11 @@ struct LyricLine: Codable, Identifiable, Equatable, Sendable {
 /// [00:15.67] Second line of the song
 /// ```
 enum LRCParser {
-    private static let lineRegex = try? NSRegularExpression(pattern: #"^((?:\[\d{1,2}:\d{2}(?:[\.:]\d{2,3})?\]\s*)+)(.*)"#)
-    private static let timeRegex = try? NSRegularExpression(pattern: #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]"#)
-    
     /// Parse an LRC string into sorted lyric lines
     static func parse(_ lrcString: String) -> [LyricLine] {
+        let lineRegex = try? NSRegularExpression(pattern: #"^((?:\[\d{1,2}:\d{2}(?:[\.:]\d{2,3})?\]\s*)+)(.*)"#)
+        let timeRegex = try? NSRegularExpression(pattern: #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]"#)
+        
         guard let regex = lineRegex, let timeRegex = timeRegex else {
             return []
         }
