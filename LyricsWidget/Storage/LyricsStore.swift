@@ -83,9 +83,9 @@ class LyricsStore: ObservableObject {
     
     // MARK: - Default Values
     
-    static let defaultBgColorHex = "#1A1A2E"
-    static let defaultTextColorHex = "#8888AA"
-    static let defaultHighlightColorHex = "#E94560"
+    nonisolated static let defaultBgColorHex = "#1A1A2E"
+    nonisolated static let defaultTextColorHex = "#8888AA"
+    nonisolated static let defaultHighlightColorHex = "#E94560"
     
     // MARK: - Keys
     
