@@ -15,24 +15,26 @@ struct LyricsSearchView: View {
     @State private var selectedSong: LRCSearchResult?
     @State private var showingLyrics = false
     
+    private var themeBg: Color { Color(hex: store.backgroundColorHex) }
+    private var themeText: Color { Color(hex: store.textColorHex) }
+    private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
+
+    
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    colors: [
-                        Color.lyricBg,
-                        Color.lyricCardBg,
-                        Color.lyricBgSecondary
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                PaperBackground(color: themeBg)
                 
                 VStack(spacing: 0) {
+                    // Header Area
+                    headerSection
+                    
+                    DottedDivider()
+                        .padding(.horizontal, 16)
+                    
                     // Search bar
                     searchBar
+                        .padding(.top, 16)
                     
                     // Content
                     if isLoading {
@@ -48,9 +50,22 @@ struct LyricsSearchView: View {
                     }
                 }
             }
-            .navigationTitle("Lyrico")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 0) {
+                        Text("LYRICO & VERSE")
+                            .font(DesignSystem.display(size: 18, weight: .black))
+                            .tracking(2)
+                        Text("manual lyrics widget · est. 2025")
+                            .font(.system(size: 8))
+                            .tracking(2)
+                            .opacity(0.6)
+                    }
+                    .foregroundColor(themeText)
+                }
+            }
             .navigationDestination(isPresented: $showingLyrics) {
                 if let song = selectedSong {
                     LyricsDisplayView(song: song)
@@ -58,23 +73,41 @@ struct LyricsSearchView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
         .onDisappear {
             searchTask?.cancel()
             isLoading = false
         }
     }
     
+    // MARK: - Header
+    
+    private var headerSection: some View {
+        HStack {
+            Text("— find your voice, dear reader —")
+                .font(DesignSystem.display(size: 14, weight: .light, italic: true))
+                .opacity(0.6)
+            Spacer()
+            Text("VOL. I")
+                .font(.system(size: 10))
+                .tracking(2)
+                .opacity(0.7)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+    }
+    
     // MARK: - Search Bar
     
     private var searchBar: some View {
         HStack(spacing: 12) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
+            Image(systemName: "pencil.line")
+                .foregroundColor(themeText.opacity(0.5))
                 .font(.system(size: 18))
             
             TextField("Search song or artist...", text: $searchText)
-                .foregroundColor(.white)
+                .foregroundColor(themeText)
+                .font(DesignSystem.body(size: 16))
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .onSubmit { performSearch() }
@@ -88,23 +121,23 @@ struct LyricsSearchView: View {
                     results = []
                     errorMessage = nil
                 }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
+                    Image(systemName: "xmark")
+                        .foregroundColor(themeText.opacity(0.5))
+                        .font(.system(size: 14, weight: .bold))
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white.opacity(0.08))
+            PaperCutShape()
+                .fill(themeText.opacity(0.08))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                    PaperCutShape()
+                        .stroke(themeText.opacity(0.2), lineWidth: 1)
                 )
         )
         .padding(.horizontal, 16)
-        .padding(.top, 8)
         .padding(.bottom, 16)
     }
     
@@ -112,14 +145,20 @@ struct LyricsSearchView: View {
     
     private var resultsList: some View {
         ScrollView {
-            LazyVStack(spacing: 8) {
+            LazyVStack(spacing: 16) {
                 ForEach(results) { result in
                     resultRow(result)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .bottom).combined(with: .opacity).combined(with: .scale(scale: 0.9)),
+                            removal: .opacity
+                        ))
                 }
             }
             .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .padding(.bottom, 32)
         }
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: results)
     }
     
     private func resultRow(_ result: LRCSearchResult) -> some View {
@@ -127,173 +166,212 @@ struct LyricsSearchView: View {
             selectedSong = result
             showingLyrics = true
         }) {
-            HStack(spacing: 14) {
-                // Music icon
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.lyricHighlight, Color.lyricHighlightDark],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 48, height: 48)
+            HStack(spacing: 16) {
+                // Mock "Book Spine"
+                ZStack(alignment: .top) {
+                    Rectangle()
+                        .fill(result.syncedLyrics != nil ? Color.lpMint : Color.lpPumpkin)
+                        .frame(width: 48, height: 64)
+                        .cornerRadius(4, corners: [.topLeft, .bottomLeft])
+                        .shadow(color: .black.opacity(0.1), radius: 2, x: 2, y: 0)
                     
-                    Image(systemName: "music.note")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.white)
+                    // Ribbon
+                    Rectangle()
+                        .fill(Color.lpCrimson)
+                        .frame(width: 8, height: 20)
+                        .padding(.top, -4)
                 }
                 
-                // Song info
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(result.trackName)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
+                        .font(DesignSystem.display(size: 18, weight: .bold))
+                        .foregroundColor(themeText)
                         .lineLimit(1)
                     
                     Text(result.artistName)
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray)
+                        .font(DesignSystem.body(size: 14, weight: .medium))
+                        .foregroundColor(themeText.opacity(0.7))
                         .lineLimit(1)
-                    
-                    if let album = result.albumName, !album.isEmpty {
-                        Text(album)
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray.opacity(0.7))
-                            .lineLimit(1)
-                    }
                 }
                 
                 Spacer()
                 
-                // Synced indicator
-                VStack(spacing: 4) {
+                VStack(alignment: .trailing, spacing: 4) {
                     if result.syncedLyrics != nil {
-                        Label("Synced", systemImage: "clock")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Color.lyricGreen)
-                    } else if result.plainLyrics != nil {
-                        Label("Plain", systemImage: "text.alignleft")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.orange)
+                        Text("SYNCED")
+                            .font(.system(size: 8, weight: .black))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Color.lpMint)
+                            .foregroundColor(Color.lpInk)
+                            .cornerRadius(4)
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(themeText, lineWidth: 1))
                     }
                     
-                    // Duration
-                    let minutes = Int(result.duration) / 60
-                    let seconds = Int(result.duration) % 60
-                    Text(String(format: "%d:%02d", minutes, seconds))
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(.gray)
+                    Text(formatDuration(result.duration))
+                        .font(.system(size: 11, design: .monospaced))
+                        .foregroundColor(themeText.opacity(0.5))
                 }
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray.opacity(0.5))
             }
-            .padding(14)
+            .padding(.trailing, 16)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.05))
+                PaperCutShape()
+                    .fill(themeText.opacity(0.05))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                        PaperCutShape()
+                            .stroke(themeText.opacity(0.15), lineWidth: 1)
                     )
             )
+            .paperCutShadow()
         }
         .buttonStyle(.plain)
+    }
+    
+    private func formatDuration(_ duration: Double) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
     
     // MARK: - State Views
     
     private var welcomeView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            Image(systemName: "music.note.list")
-                .font(.system(size: 60))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.lyricHighlight, Color.lyricGreen],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-            
-            Text("Search for Lyrics")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.white)
-            
-            Text("Find a song and set its lyrics\nas your home screen widget")
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-            
-            if let song = store.currentSong {
-                Divider()
-                    .background(Color.white.opacity(0.1))
-                    .padding(.horizontal, 40)
-                
-                VStack(spacing: 8) {
-                    Text("Currently on widget:")
-                        .font(.system(size: 13))
-                        .foregroundColor(.gray)
+        ScrollView {
+            VStack(spacing: 28) {
+                // Melodic Fox Card (Hero)
+                ZStack {
+                    PaperCutShape()
+                        .fill(themeHighlight.opacity(0.2))
+                        .paperCutShadow()
                     
-                    Text("\(song.trackName) — \(song.artistName)")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(Color.lyricGreen)
-                        .multilineTextAlignment(.center)
+                    VStack(spacing: 20) {
+                        AsyncImage(url: URL(string: "https://kombai-assets.b-cdn.net/generated_assets/546bcd6a-ae6d-45c1-85a6-b370c2cc2f99/7faea13a823a42299a4a3a537ac4b85b.jpg")) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 220, height: 280)
+                                .clipShape(PaperCutShape())
+                                .overlay(PaperCutShape().stroke(themeText, lineWidth: 2))
+                                .paperCutShadow()
+                        } placeholder: {
+                            ZStack {
+                                Rectangle().fill(themeText.opacity(0.1)).frame(width: 220, height: 280)
+                                ProgressView().tint(themeText)
+                            }
+                        }
+                        
+                        Text("Stories that unfold in the dark.")
+                            .font(DesignSystem.display(size: 32, weight: .black))
+                            .foregroundColor(themeText)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                    }
+                    .padding(32)
                 }
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                
+                VStack(spacing: 12) {
+                    Text("A glanceable viewport for your Home Screen.")
+                        .font(DesignSystem.display(size: 16, weight: .medium, italic: true))
+                        .foregroundColor(themeText.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                    
+                    Text("Step through lyrics line-by-line with interactive controls.")
+                        .font(DesignSystem.body(size: 14))
+                        .foregroundColor(themeText.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                }
+                .padding(.horizontal, 32)
+                
+                if let song = store.currentSong {
+                    VStack(spacing: 6) {
+                        Text("CURRENTLY ON WIDGET")
+                            .font(.system(size: 10, weight: .black))
+                            .tracking(2)
+                            .foregroundColor(themeText.opacity(0.4))
+                        
+                        Text("\(song.trackName) — \(song.artistName)")
+                            .font(DesignSystem.display(size: 16, weight: .bold))
+                            .foregroundColor(themeHighlight)
+                    }
+                    .padding(.vertical, 20)
+                    .padding(.horizontal, 32)
+                    .background(
+                        ZStack {
+                            WashiTape(color: themeHighlight.opacity(0.2), rotation: .degrees(-1.5))
+                            WashiTape(color: themeHighlight.opacity(0.1), rotation: .degrees(0.5))
+                        }
+                    )
+                }
+                
+                Spacer()
             }
-            
-            Spacer()
         }
-        .padding(.horizontal, 32)
     }
     
     private var loadingView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Spacer()
             ProgressView()
-                .progressViewStyle(CircularProgressViewStyle(tint: Color.lyricHighlight))
-                .scaleEffect(1.2)
-            Text("Searching...")
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .scaleEffect(1.5)
+                .tint(themeHighlight)
+            Text("Unfolding the library...")
+                .font(DesignSystem.display(size: 18, italic: true))
+                .foregroundColor(themeText.opacity(0.6))
             Spacer()
         }
     }
     
     private func errorView(_ message: String) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             Spacer()
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 40))
-                .foregroundColor(.orange)
+            Image(systemName: "exclamationmark.bubble.fill")
+                .font(.system(size: 48))
+                .foregroundColor(themeHighlight)
+                .paperCutShadow()
+            
             Text(message)
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .font(DesignSystem.display(size: 20))
+                .foregroundColor(themeText)
                 .multilineTextAlignment(.center)
-            Button("Try Again") { performSearch() }
-                .foregroundColor(Color.lyricHighlight)
-                .font(.system(size: 16, weight: .semibold))
+                .padding(.horizontal, 20)
+            
+            Button(action: performSearch) {
+                Text("Try Again")
+                    .font(DesignSystem.display(size: 18, weight: .bold))
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 14)
+                    .background(
+                        PaperCutShape()
+                            .fill(themeHighlight)
+                            .overlay(PaperCutShape().stroke(themeText, lineWidth: 2))
+                    )
+                    .foregroundColor(Color.lpInk)
+                    .paperCutShadow()
+            }
             Spacer()
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 40)
     }
     
     private var emptyView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             Spacer()
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
-            Text("No results found")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.white)
-            Text("Try a different search term")
-                .font(.system(size: 14))
-                .foregroundColor(.gray)
+            Image(systemName: "text.page.slash")
+                .font(.system(size: 54))
+                .foregroundColor(themeText.opacity(0.2))
+            
+            VStack(spacing: 8) {
+                Text("No stories found.")
+                    .font(DesignSystem.display(size: 24, weight: .bold))
+                    .foregroundColor(themeText)
+                
+                Text("Perhaps the rabbit borrowed them.")
+                    .font(DesignSystem.display(size: 16, weight: .light, italic: true))
+                    .foregroundColor(themeText.opacity(0.6))
+            }
             Spacer()
         }
     }
@@ -312,11 +390,8 @@ struct LyricsSearchView: View {
         }
         
         searchTask = Task {
-            // Wait 500ms for debounce
             try? await Task.sleep(nanoseconds: 500_000_000)
-            
             guard !Task.isCancelled else { return }
-            
             performSearch()
         }
     }
@@ -328,23 +403,36 @@ struct LyricsSearchView: View {
         
         isLoading = true
         errorMessage = nil
-        
         searchTask?.cancel()
         
         searchTask = Task {
             do {
                 let searchResults = try await LyricsAPI.shared.search(query: query)
-                
                 guard !Task.isCancelled else { return }
-                
                 self.results = searchResults
                 self.isLoading = false
             } catch {
                 guard !Task.isCancelled else { return }
-                
                 self.errorMessage = error.localizedDescription
                 self.isLoading = false
             }
         }
+    }
+}
+
+// MARK: - Helper for Rounded Corners
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }

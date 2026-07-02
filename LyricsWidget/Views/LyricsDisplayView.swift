@@ -3,8 +3,6 @@ import SwiftUI
 // MARK: - Lyrics Display View
 
 /// Full-screen view showing all lyrics for a song.
-/// The user can scroll through, tap to highlight lines,
-/// and set the song as the active widget content.
 @MainActor
 struct LyricsDisplayView: View {
     @EnvironmentObject var store: LyricsStore
@@ -17,33 +15,53 @@ struct LyricsDisplayView: View {
     @State private var isSetAsWidget = false
     @State private var showConfirmation = false
     
+    private var themeBg: Color { Color(hex: store.backgroundColorHex) }
+    private var themeText: Color { Color(hex: store.textColorHex) }
+    private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
+    
     var body: some View {
         ZStack {
-            // Background
-            LinearGradient(
-                colors: [
-                    Color.lyricBg,
-                    Color.lyricCardBg
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            PaperBackground(color: themeBg)
             
             VStack(spacing: 0) {
                 // Song header
                 songHeader
                 
-                Divider()
-                    .background(Color.white.opacity(0.1))
+                DottedDivider()
+                    .padding(.horizontal, 24)
                 
                 // Lyrics content
-                if !lines.isEmpty {
-                    syncedLyricsView
-                } else if let plain = song.plainLyrics, !plain.isEmpty {
-                    plainLyricsView(plain)
-                } else {
-                    noLyricsView
+                ZStack {
+                    if !lines.isEmpty {
+                        syncedLyricsView
+                    } else if let plain = song.plainLyrics, !plain.isEmpty {
+                        plainLyricsView(plain)
+                    } else {
+                        noLyricsView
+                    }
+                    
+                    // Decorative Fox (bottom left)
+                    VStack {
+                        Spacer()
+                        HStack {
+                            AsyncImage(url: URL(string: "https://kombai-assets.b-cdn.net/generated_assets/546bcd6a-ae6d-45c1-85a6-b370c2cc2f99/7faea13a823a42299a4a3a537ac4b85b.jpg")) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 70, height: 90)
+                                    .clipShape(PaperCutShape())
+                                    .overlay(PaperCutShape().stroke(themeText, lineWidth: 1))
+                                    .paperCutShadow()
+                                    .opacity(0.3)
+                                    .rotationEffect(.degrees(-5))
+                            } placeholder: {
+                                EmptyView()
+                            }
+                            Spacer()
+                        }
+                    }
+                    .padding(20)
+                    .allowsHitTesting(false)
                 }
                 
                 // Bottom bar
@@ -51,7 +69,6 @@ struct LyricsDisplayView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .onAppear {
             if let synced = song.syncedLyrics {
                 lines = LRCParser.parse(synced)
@@ -62,7 +79,6 @@ struct LyricsDisplayView: View {
                     .enumerated()
                     .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
             }
-            // Check if this song is already the widget song
             isSetAsWidget = store.currentSong?.id == song.id
             if isSetAsWidget {
                 highlightedIndex = store.currentLineIndex
@@ -78,72 +94,57 @@ struct LyricsDisplayView: View {
     // MARK: - Song Header
     
     private var songHeader: some View {
-        VStack(spacing: 8) {
-            // Song icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.lyricHighlight, Color.lyricHighlightDark],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 64, height: 64)
-                
-                Image(systemName: "music.note")
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundColor(.white)
-            }
-            .padding(.top, 16)
-            
+        VStack(spacing: 6) {
             Text(song.trackName)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.white)
+                .font(DesignSystem.display(size: 26, weight: .black))
+                .foregroundColor(themeText)
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
             
             Text(song.artistName)
-                .font(.system(size: 16))
-                .foregroundColor(.gray)
+                .font(DesignSystem.display(size: 16, weight: .medium, italic: true))
+                .foregroundColor(themeText.opacity(0.7))
             
-            if let album = song.albumName, !album.isEmpty {
-                Text(album)
-                    .font(.system(size: 14))
-                    .foregroundColor(.gray.opacity(0.7))
-            }
-            
-            // Tags
-            HStack(spacing: 8) {
-                if song.syncedLyrics != nil {
-                    tagView(text: "Synced", color: Color.lyricGreen)
+            // Meta Info
+            HStack(spacing: 12) {
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.system(size: 10))
+                    Text(formatDuration(song.duration))
+                        .font(.system(size: 11, design: .monospaced))
                 }
-                if song.plainLyrics != nil {
-                    tagView(text: "Plain Text", color: .orange)
-                }
+                .foregroundColor(themeText.opacity(0.5))
                 
-                let minutes = Int(song.duration) / 60
-                let seconds = Int(song.duration) % 60
-                tagView(
-                    text: String(format: "%d:%02d", minutes, seconds),
-                    color: .gray
-                )
+                if song.syncedLyrics != nil {
+                    tagView(text: "SYNCED", color: themeHighlight.opacity(0.2))
+                } else {
+                    tagView(text: "PLAIN TEXT", color: themeText.opacity(0.1))
+                }
             }
             .padding(.top, 4)
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
     }
     
     private func tagView(text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 12, weight: .medium))
-            .foregroundColor(color)
-            .padding(.horizontal, 10)
+            .font(.system(size: 9, weight: .black))
+            .tracking(1)
+            .foregroundColor(themeText)
+            .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(
-                Capsule()
-                    .fill(color.opacity(0.15))
+                PaperCutShape()
+                    .fill(color)
+                    .overlay(PaperCutShape().stroke(themeText, lineWidth: 1))
             )
+    }
+    
+    private func formatDuration(_ duration: Double) -> String {
+        let minutes = Int(duration) / 60
+        let seconds = Int(duration) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
     
     // MARK: - Synced Lyrics View
@@ -151,59 +152,53 @@ struct LyricsDisplayView: View {
     private var syncedLyricsView: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 6) {
+                LazyVStack(spacing: 0) {
                     ForEach(Array(lines.enumerated()), id: \.element.id) { index, line in
                         Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
                                 highlightedIndex = index
                             }
                         }) {
-                            HStack(spacing: 12) {
-                                // Timestamp (only for synced lyrics)
-                                if song.syncedLyrics != nil {
-                                    Text(line.formattedTime)
-                                        .font(.system(size: 12, design: .monospaced))
-                                        .foregroundColor(
-                                            index == highlightedIndex
-                                                ? Color.lyricHighlight
-                                                : .gray.opacity(0.4)
-                                        )
-                                        .frame(width: 40, alignment: .trailing)
-                                }
+                            HStack(spacing: 16) {
+                                // Timestamp
+                                Text(line.formattedTime)
+                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                    .foregroundColor(themeText.opacity(index == highlightedIndex ? 0.8 : 0.15))
+                                    .frame(width: 45, alignment: .trailing)
                                 
                                 // Lyric text
                                 Text(line.text)
-                                    .font(.system(
-                                        size: index == highlightedIndex ? 18 : 16,
-                                        weight: index == highlightedIndex ? .bold : .regular
+                                    .font(DesignSystem.display(
+                                        size: index == highlightedIndex ? 22 : 16,
+                                        weight: index == highlightedIndex ? .black : .medium
                                     ))
-                                    .foregroundColor(
-                                        index == highlightedIndex
-                                            ? .white
-                                            : .gray.opacity(0.6)
-                                    )
+                                    .foregroundColor(index == highlightedIndex ? themeText : themeText.opacity(0.4))
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .multilineTextAlignment(.leading)
+                                    .scaleEffect(index == highlightedIndex ? 1.05 : 1.0, anchor: .leading)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 14)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(
-                                        index == highlightedIndex
-                                            ? Color.lyricHighlight.opacity(0.1)
-                                            : Color.clear
-                                    )
+                                ZStack {
+                                    if index == highlightedIndex {
+                                        WashiTape(color: themeHighlight.opacity(0.3), rotation: .degrees(-0.8))
+                                            .transition(.asymmetric(
+                                                insertion: .scale(scale: 0.95).combined(with: .opacity),
+                                                removal: .opacity
+                                            ))
+                                    }
+                                }
                             )
                         }
                         .buttonStyle(.plain)
                         .id(index)
                     }
                 }
-                .padding(.vertical, 16)
+                .padding(.vertical, 24)
             }
             .onChange(of: highlightedIndex) { _, newValue in
-                withAnimation {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                     proxy.scrollTo(newValue, anchor: .center)
                 }
             }
@@ -217,29 +212,44 @@ struct LyricsDisplayView: View {
     
     private func plainLyricsView(_ text: String) -> some View {
         ScrollView {
-            Text(text)
-                .font(.system(size: 16))
-                .foregroundColor(.white.opacity(0.8))
-                .lineSpacing(8)
-                .padding(20)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 12) {
+                Text(text)
+                    .font(DesignSystem.display(size: 19, weight: .medium))
+                    .foregroundColor(themeText.opacity(0.85))
+                    .lineSpacing(10)
+                    .padding(32)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .background(
+                PaperCutShape()
+                    .fill(themeText.opacity(0.04))
+                    .padding(16)
+                    .paperCutShadow()
+            )
+            .padding(.vertical, 20)
         }
     }
     
     // MARK: - No Lyrics
     
     private var noLyricsView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             Spacer()
             Image(systemName: "text.page.slash")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
-            Text("No lyrics available")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.white)
-            Text("This track doesn't have lyrics in the database")
-                .font(.system(size: 14))
-                .foregroundColor(.gray)
+                .font(.system(size: 54))
+                .foregroundColor(themeText.opacity(0.2))
+            
+            VStack(spacing: 8) {
+                Text("No lyrics available")
+                    .font(DesignSystem.display(size: 22, weight: .bold))
+                    .foregroundColor(themeText)
+                
+                Text("This track doesn't have lyrics in the database")
+                    .font(DesignSystem.display(size: 15, weight: .light, italic: true))
+                    .foregroundColor(themeText.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
             Spacer()
         }
     }
@@ -248,50 +258,48 @@ struct LyricsDisplayView: View {
     
     private var bottomBar: some View {
         VStack(spacing: 0) {
-            Divider()
-                .background(Color.white.opacity(0.1))
+            DottedDivider()
             
             Button(action: setAsWidget) {
-                HStack(spacing: 10) {
-                    Image(systemName: isSetAsWidget ? "checkmark.circle.fill" : "rectangle.on.rectangle")
-                        .font(.system(size: 18))
+                HStack(spacing: 12) {
+                    Image(systemName: isSetAsWidget ? "checkmark.seal.fill" : "hand.tap.fill")
+                        .font(.system(size: 20))
                     
-                    Text(isSetAsWidget ? "Active on Widget" : "Set as Widget Lyrics")
-                        .font(.system(size: 16, weight: .semibold))
+                    Text(isSetAsWidget ? "ACTIVE ON WIDGET" : "SET TO WIDGET")
+                        .font(DesignSystem.display(size: 16, weight: .black))
+                        .tracking(1.5)
                 }
-                .foregroundColor(.white)
+                .foregroundColor(Color.lpInk)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, 20)
                 .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(
-                            isSetAsWidget
-                                ? AnyShapeStyle(Color.lyricGreen)
-                                : AnyShapeStyle(LinearGradient(
-                                    colors: [Color.lyricHighlight, Color.lyricHighlightDark],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                        )
+                    PaperCutShape()
+                        .fill(isSetAsWidget ? Color.lpMint : themeHighlight)
+                        .overlay(PaperCutShape().stroke(themeText, lineWidth: 2))
                 )
+                .paperCutShadow()
+                .scaleEffect(isSetAsWidget ? 0.98 : 1.0)
             }
             .disabled(song.syncedLyrics == nil && song.plainLyrics == nil)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 24)
         }
-        .background(Color.lyricBg.opacity(0.95))
+        .background(PaperBackground(color: themeBg, hasGrain: false).opacity(0.98))
     }
     
     // MARK: - Actions
     
     private func setAsWidget() {
         store.selectSong(song, initialIndex: highlightedIndex)
-        
         isSetAsWidget = true
-        showConfirmation = true
+        withAnimation(.spring()) { showConfirmation = true }
         
-        // Auto-hide confirmation
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        // Impact feedback (Haptic)
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation { showConfirmation = false }
         }
     }
@@ -301,28 +309,23 @@ struct LyricsDisplayView: View {
     private var confirmationToast: some View {
         VStack {
             Spacer()
-            
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color.lyricGreen)
-                Text("Lyrics saved to widget!")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(.lpMint)
+                Text("Lyrics sent to widget!")
+                    .font(DesignSystem.display(size: 16, weight: .bold))
+                    .foregroundColor(themeText)
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 28)
+            .padding(.vertical, 18)
             .background(
-                Capsule()
-                    .fill(Color.lyricCardBg)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.lyricGreen.opacity(0.3), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.3), radius: 10)
+                PaperCutShape()
+                    .fill(themeBg)
+                    .overlay(PaperCutShape().stroke(themeText, lineWidth: 1.5))
+                    .paperCutShadow()
             )
-            .padding(.bottom, 100)
+            .padding(.bottom, 130)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
-        .animation(.spring(response: 0.3), value: showConfirmation)
     }
 }

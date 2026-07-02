@@ -80,10 +80,10 @@ class LyricsStore: ObservableObject {
     
     // MARK: - Default Values
     
-    nonisolated static let defaultBgColorHex = "#1A1A2E"
-    nonisolated static let defaultTextColorHex = "#8888AA"
-    nonisolated static let defaultHighlightColorHex = "#E94560"
-    
+    nonisolated static let defaultBgColorHex = "#F4E9D0"
+    nonisolated static let defaultTextColorHex = "#3A2C5C"
+    nonisolated static let defaultHighlightColorHex = "#E08244"
+
     // MARK: - Keys
     
     private enum Keys {
@@ -112,11 +112,11 @@ class LyricsStore: ObservableObject {
         self.highlightColorHex = groupDefaults.string(forKey: Keys.highlightColor) ?? LyricsStore.defaultHighlightColorHex
         
         let savedFontSize = groupDefaults.double(forKey: Keys.fontSize)
-        self.fontSize = savedFontSize == 0 ? 14.0 : savedFontSize
+        self.fontSize = savedFontSize == 0 ? 16.0 : savedFontSize
         
         let savedLinesVisible = groupDefaults.integer(forKey: Keys.linesVisible)
-        self.linesVisible = savedLinesVisible == 0 ? 5 : savedLinesVisible
-        
+        self.linesVisible = savedLinesVisible == 0 ? 3 : savedLinesVisible
+
         // Load current song
         loadSong()
         
