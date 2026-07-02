@@ -54,9 +54,18 @@ struct LyricsDisplayView: View {
         .onAppear {
             if let synced = song.syncedLyrics {
                 lines = LRCParser.parse(synced)
+            } else if let plain = song.plainLyrics, !plain.isEmpty {
+                lines = plain.components(separatedBy: "\n")
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .map { $0.isEmpty ? " " : $0 }
+                    .enumerated()
+                    .map { LyricLine(timestamp: Double($0.offset), text: $0.element) }
             }
             // Check if this song is already the widget song
             isSetAsWidget = store.currentSong?.id == song.id
+            if isSetAsWidget {
+                highlightedIndex = store.currentLineIndex
+            }
         }
         .overlay {
             if showConfirmation {
@@ -149,15 +158,17 @@ struct LyricsDisplayView: View {
                             }
                         }) {
                             HStack(spacing: 12) {
-                                // Timestamp
-                                Text(line.formattedTime)
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundColor(
-                                        index == highlightedIndex
-                                            ? Color.lyricHighlight
-                                            : .gray.opacity(0.4)
-                                    )
-                                    .frame(width: 40, alignment: .trailing)
+                                // Timestamp (only for synced lyrics)
+                                if song.syncedLyrics != nil {
+                                    Text(line.formattedTime)
+                                        .font(.system(size: 12, design: .monospaced))
+                                        .foregroundColor(
+                                            index == highlightedIndex
+                                                ? Color.lyricHighlight
+                                                : .gray.opacity(0.4)
+                                        )
+                                        .frame(width: 40, alignment: .trailing)
+                                }
                                 
                                 // Lyric text
                                 Text(line.text)
@@ -194,6 +205,9 @@ struct LyricsDisplayView: View {
                 withAnimation {
                     proxy.scrollTo(newValue, anchor: .center)
                 }
+            }
+            .onAppear {
+                proxy.scrollTo(highlightedIndex, anchor: .center)
             }
         }
     }

@@ -53,22 +53,17 @@ struct LyricLine: Codable, Identifiable, Equatable {
 /// [00:15.67] Second line of the song
 /// ```
 enum LRCParser {
+    private static let lineRegex = try? NSRegularExpression(pattern: #"^((?:\[\d{1,2}:\d{2}(?:[\.:]\d{2,3})?\]\s*)+)(.*)"#)
+    private static let timeRegex = try? NSRegularExpression(pattern: #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]"#)
     
     /// Parse an LRC string into sorted lyric lines
     static func parse(_ lrcString: String) -> [LyricLine] {
+        guard let regex = lineRegex, let timeRegex = timeRegex else {
+            return []
+        }
+        
         let lines = lrcString.components(separatedBy: "\n")
         var result: [LyricLine] = []
-        
-        // Matches one or more timestamp patterns at the start, followed by the remaining text
-        let pattern = #"^((?:\[\d{1,2}:\d{2}(?:[\.:]\d{2,3})?\]\s*)+)(.*)"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
-            return []
-        }
-        
-        let timePattern = #"\[(\d{1,2}):(\d{2})(?:[\.:](\d{2,3}))?\]"#
-        guard let timeRegex = try? NSRegularExpression(pattern: timePattern) else {
-            return []
-        }
         
         for line in lines {
             let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
