@@ -258,14 +258,23 @@ extension Color {
     static let lyricGray = Color(hex: "#8888AA")
 
     /// Create a Color from a hex string like "#FF5733" or "#FF573380" (with alpha)
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        let scanner = Scanner(string: hex)
+    /// If the hex string is invalid, it falls back to the specified default color.
+    init(hex: String, fallback: Color = .black) {
+        let trimmed = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let hexCharacters = CharacterSet(charactersIn: "0123456789ABCDEFabcdef")
+        
+        guard (trimmed.count == 6 || trimmed.count == 8) &&
+              CharacterSet(charactersIn: trimmed).isSubset(of: hexCharacters) else {
+            self = fallback
+            return
+        }
+        
+        let scanner = Scanner(string: trimmed)
         var rgbValue: UInt64 = 0
         scanner.scanHexInt64(&rgbValue)
         
         let r, g, b, a: Double
-        switch hex.count {
+        switch trimmed.count {
         case 6:
             r = Double((rgbValue & 0xFF0000) >> 16) / 255.0
             g = Double((rgbValue & 0x00FF00) >> 8) / 255.0
@@ -277,7 +286,8 @@ extension Color {
             b = Double((rgbValue & 0x0000FF00) >> 8) / 255.0
             a = Double(rgbValue & 0x000000FF) / 255.0
         default:
-            r = 0; g = 0; b = 0; a = 1
+            self = fallback
+            return
         }
         
         self.init(red: r, green: g, blue: b, opacity: a)

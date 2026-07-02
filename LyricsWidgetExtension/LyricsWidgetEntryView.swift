@@ -7,10 +7,39 @@ struct LyricsWidgetEntryView : View {
     var entry: LyricsTimelineProvider.Entry
     @Environment(\.widgetFamily) var family
 
+    /// Compute the adaptive font size to prevent clipping on small screens
+    private var adaptiveFontSize: CGFloat {
+        switch family {
+        case .systemSmall:
+            return min(CGFloat(entry.fontSize), 13.0)
+        case .systemMedium:
+            return min(CGFloat(entry.fontSize), 16.0)
+        default:
+            return CGFloat(entry.fontSize)
+        }
+    }
+    
+    /// Compute the adaptive number of visible lines
+    private var adaptiveLinesCount: Int {
+        switch family {
+        case .systemSmall:
+            return min(entry.linesVisible, 3)
+        default:
+            return entry.linesVisible
+        }
+    }
+
     var body: some View {
         ZStack {
             // Background Color
             Color(hex: entry.backgroundColorHex)
+            
+            // Glassmorphic gloss gradient overlay
+            LinearGradient(
+                colors: [Color.white.opacity(0.04), Color.clear],
+                startPoint: .top,
+                endPoint: .bottom
+            )
             
             VStack(spacing: 6) {
                 // Header (only for Medium/Large sizes)
@@ -70,7 +99,7 @@ struct LyricsWidgetEntryView : View {
                     .frame(maxWidth: .infinity)
                 Spacer()
             } else {
-                let visibleRange = getVisibleLineIndices()
+                let visibleRange = getVisibleLineIndices(count: adaptiveLinesCount)
                 
                 ForEach(visibleRange, id: \.self) { index in
                     if index >= 0 && index < entry.lines.count {
@@ -79,7 +108,7 @@ struct LyricsWidgetEntryView : View {
                         
                         Text(line.text)
                             .font(.system(
-                                size: CGFloat(entry.fontSize),
+                                size: adaptiveFontSize,
                                 weight: isCurrent ? .bold : .regular
                             ))
                             .foregroundColor(
@@ -99,7 +128,7 @@ struct LyricsWidgetEntryView : View {
                     } else {
                         // Blank lines if song has ended or hasn't started
                         Text(" ")
-                            .font(.system(size: CGFloat(entry.fontSize)))
+                            .font(.system(size: adaptiveFontSize))
                             .padding(.vertical, 2)
                     }
                 }
@@ -141,13 +170,12 @@ struct LyricsWidgetEntryView : View {
     // MARK: - Range Calculation
     
     /// Calculate which indices to show to keep the highlighted lyric centered
-    private func getVisibleLineIndices() -> [Int] {
+    private func getVisibleLineIndices(count: Int) -> [Int] {
         guard !entry.lines.isEmpty else {
             // Placeholder text if no lines
-            return Array(0..<entry.linesVisible)
+            return Array(0..<count)
         }
         
-        let count = entry.linesVisible
         let half = count / 2
         
         var start = entry.currentIndex - half
