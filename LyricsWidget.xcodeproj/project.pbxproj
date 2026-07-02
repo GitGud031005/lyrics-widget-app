@@ -22,6 +22,8 @@
 		D3D080CA2C00000300000005 /* LyricsWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080C92C00000300000005 /* LyricsWidgetEntryView.swift */; };
 		D3D080CA2C00000300000006 /* LyricsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000001 /* LyricsModel.swift */; };
 		D3D080CA2C00000300000007 /* LyricsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000003 /* LyricsStore.swift */; };
+		D3D080B12C00000200000007 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000007 /* Theme.swift */; };
+		D3D080CA2C00000300000008 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D080B02C00000200000007 /* Theme.swift */; };
 		D3D080CC2C00000300000000 /* LyricsWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D3D080C32C00000300000000 /* LyricsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -41,6 +43,7 @@
 		D3D080C92C00000300000003 /* LyricsWidgetIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetIntents.swift; sourceTree = "<group>"; };
 		D3D080C92C00000300000004 /* LyricsTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsTimelineProvider.swift; sourceTree = "<group>"; };
 		D3D080C92C00000300000005 /* LyricsWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsWidgetEntryView.swift; sourceTree = "<group>"; };
+		D3D080B02C00000200000007 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		D3D080C92C00000300000006 /* LyricsWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsWidgetExtension.entitlements; sourceTree = "<group>"; };
 		D3D080C92C00000300000007 /* LyricsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LyricsWidget.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -91,6 +94,7 @@
 				D3D080B02C00000200000004 /* LyricsSearchView.swift */,
 				D3D080B02C00000200000005 /* LyricsDisplayView.swift */,
 				D3D080B02C00000200000006 /* SettingsView.swift */,
+				D3D080B02C00000200000007 /* Theme.swift */,
 				D3D080C92C00000300000007 /* LyricsWidget.entitlements */,
 				D3D080A82C00000100000003 /* Assets.xcassets */,
 			);
@@ -216,6 +220,7 @@
 				D3D080B12C00000200000004 /* LyricsSearchView.swift in Sources */,
 				D3D080B12C00000200000005 /* LyricsDisplayView.swift in Sources */,
 				D3D080B12C00000200000006 /* SettingsView.swift in Sources */,
+				D3D080B12C00000200000007 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,6 +235,7 @@
 				D3D080CA2C00000300000005 /* LyricsWidgetEntryView.swift in Sources */,
 				D3D080CA2C00000300000006 /* LyricsModel.swift in Sources */,
 				D3D080CA2C00000300000007 /* LyricsStore.swift in Sources */,
+				D3D080CA2C00000300000008 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

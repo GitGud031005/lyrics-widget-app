@@ -25,7 +25,7 @@ struct LyricsWidgetEntryView : View {
             return 3
         case .systemLarge:
             return 7
-        @unknown default:
+        default:
             return 3
         }
     }
