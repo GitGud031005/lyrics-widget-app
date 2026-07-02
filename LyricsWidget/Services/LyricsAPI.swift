@@ -15,7 +15,7 @@ actor LyricsAPI {
     
     private init() {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForRequest = 8.0
         config.httpAdditionalHeaders = [
             "User-Agent": "Lyrico iOS App/1.0.0 (https://github.com/GitGud031005/lyrics-widget-app)"
         ]
