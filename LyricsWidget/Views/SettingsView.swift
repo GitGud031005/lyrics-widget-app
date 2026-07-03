@@ -4,12 +4,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var store: LyricsStore
     
-    private var themeBg: Color { Color(hex: store.backgroundColorHex) }
-    private var themeText: Color { Color(hex: store.textColorHex) }
-    private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
-    private var isDark: Bool { store.backgroundColorHex.uppercased() == "#3A2C5C" }
-    private var cardBg: Color { isDark ? Color(hex: "#A8D6B8").opacity(0.12) : Color.lpCream }
-    private var shadowColor: Color { isDark ? Color(hex: "#1A1230") : Color.lpInk.opacity(0.35) }
+    @State private var showLineCapacityPicker = false
     
     // Midnight Mood presets
     private let themes = [
@@ -20,7 +15,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            PaperBackground(color: themeBg)
+            MidnightStippleBackground()
             
             ScrollView {
                 VStack(spacing: 44) {
@@ -43,18 +38,18 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("CONFIGURE\nYOUR SETUP")
                 .font(DesignSystem.display(size: 42, weight: .black))
-                .foregroundColor(themeText)
+                .foregroundColor(.lpCream)
                 .lineSpacing(-6)
             
             HStack(spacing: 12) {
                 Rectangle()
-                    .fill(themeHighlight)
+                    .fill(Color.lpPumpkin)
                     .frame(width: 64, height: 8)
-                    .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
+                    .shadow(color: Color.lpDeepShadow, radius: 0, x: 4, y: 4)
                 
                 Text("Version 2.0.4")
                     .font(DesignSystem.display(size: 14, weight: .bold, italic: true))
-                    .foregroundColor(themeText.opacity(0.7))
+                    .foregroundColor(.lpMint)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,12 +74,18 @@ struct SettingsView: View {
                 .rotationEffect(.degrees(-2))
                 .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
             
+            // Deep-shadow offset layer behind main card
+            Rectangle()
+                .fill(Color.lpDeepShadow.opacity(0.30))
+                .frame(width: 320, height: 340)
+                .offset(x: 4, y: 4)
+            
             // Main cream preview card
             ZStack(alignment: .topTrailing) {
                 ZStack {
                     Rectangle()
                         .fill(Color.lpCream)
-                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 3))
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 6))
                     
                     VStack(spacing: 16) {
                         // Deep-shadow lyrics viewport
@@ -101,13 +102,12 @@ struct SettingsView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, 12)
                                 
-                                DottedDivider(color: .lpPumpkin.opacity(0.4))
+                                DotPatternDivider(color: .lpPumpkin.opacity(0.4))
                                     .padding(.horizontal, 20)
                                 
                                 ZStack {
                                     Color.lpPumpkin
-                                        .clipShape(PaperCutShape())
-                                        .rotationEffect(.degrees(-1))
+                                        .clipShape(TornTapeShape())
                                     
                                     Canvas { context, size in
                                         let stripeColor = Color.white.opacity(0.2)
@@ -164,9 +164,9 @@ struct SettingsView: View {
                             Spacer()
                             
                             HStack(spacing: 6) {
-                                themeColorSquare(themeBg)
-                                themeColorSquare(themeText)
-                                themeColorSquare(themeHighlight)
+                                themeColorSquare(.lpPumpkin)
+                                themeColorSquare(.lpMint)
+                                themeColorSquare(.lpInk)
                             }
                         }
                         .padding(.horizontal, 4)
@@ -200,8 +200,9 @@ struct SettingsView: View {
     private func themeColorSquare(_ color: Color) -> some View {
         Rectangle()
             .fill(color)
-            .frame(width: 12, height: 12)
+            .frame(width: 10, height: 10)
             .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 1))
+            .shadow(color: .lpDeepShadow, radius: 0, x: 2, y: 2)
     }
     
     // MARK: - Theme Presets
@@ -211,10 +212,10 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Text("Quick Presets")
                     .font(DesignSystem.display(size: 24, weight: .bold))
-                    .foregroundColor(themeText)
+                    .foregroundColor(.lpCream)
                 
                 Rectangle()
-                    .fill(themeText.opacity(0.2))
+                    .fill(Color.lpCream.opacity(0.2))
                     .frame(height: 2)
             }
             
@@ -282,32 +283,37 @@ struct SettingsView: View {
     private var customTweaksSection: some View {
         ZStack {
             // Deep shadow offset
-            TornBorderShape()
-                .fill(shadowColor)
+            ScallopedTornBorderShape()
+                .fill(Color.lpDeepShadow.opacity(0.40))
                 .offset(x: 3, y: 3)
             
-            TornBorderShape()
-                .fill(cardBg)
-                .overlay(TornBorderShape().stroke(themeText.opacity(0.15), lineWidth: 4))
+            ScallopedTornBorderShape()
+                .fill(Color.lpMint.opacity(0.10))
+                .overlay(ScallopedTornBorderShape().stroke(Color.lpMint.opacity(0.30), lineWidth: 4))
                 .compositingGroup()
-                .shadow(color: shadowColor, radius: 0, x: 3, y: 3)
+                .shadow(color: Color.lpDeepShadow, radius: 0, x: 4, y: 4)
+            
+            // Subtle internal stipple overlay
+            StipplePatternView(dotRadius: 0.5, spacing: 10, opacity: 0.08)
+                .clipShape(ScallopedTornBorderShape())
+                .allowsHitTesting(false)
             
             VStack(spacing: 28) {
                 HStack {
                     Text("Custom Tweaks")
                         .font(DesignSystem.display(size: 24, weight: .bold))
-                        .foregroundColor(themeText)
+                        .foregroundColor(.lpMint)
                     
                     Spacer()
                     
                     ZStack {
                         Circle()
-                            .strokeBorder(themeText.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [4]))
+                            .strokeBorder(Color.lpMint.opacity(0.40), style: StrokeStyle(lineWidth: 2, dash: [4]))
                             .frame(width: 40, height: 40)
                         
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(themeText.opacity(0.7))
+                            .foregroundColor(.lpMint.opacity(0.70))
                     }
                 }
                 
@@ -317,13 +323,13 @@ struct SettingsView: View {
                         Text("TEXT SIZING")
                             .font(.system(size: 11, weight: .black))
                             .tracking(2)
-                            .foregroundColor(themeText.opacity(0.6))
+                            .foregroundColor(Color.lpCream.opacity(0.6))
                         
                         Spacer()
                         
                         Text("\(Int(store.fontSize))pt")
                             .font(DesignSystem.display(size: 28, weight: .black))
-                            .foregroundColor(themeHighlight)
+                            .foregroundColor(Color.lpPumpkin)
                     }
                     
                     MidnightSlider(value: $store.fontSize, range: 12...22, step: 1)
@@ -337,7 +343,7 @@ struct SettingsView: View {
                     }
                     .font(.system(size: 10, weight: .black))
                     .tracking(1)
-                    .foregroundColor(themeText.opacity(0.4))
+                    .foregroundColor(Color.lpCream.opacity(0.4))
                 }
                 
                 // Line Capacity
@@ -345,15 +351,11 @@ struct SettingsView: View {
                     Text("LINE CAPACITY")
                         .font(.system(size: 11, weight: .black))
                         .tracking(2)
-                        .foregroundColor(themeText.opacity(0.6))
+                        .foregroundColor(Color.lpCream.opacity(0.6))
                     
                     Spacer()
                     
-                    Menu {
-                        Button("3 Lines") { store.linesVisible = 3 }
-                        Button("5 Lines") { store.linesVisible = 5 }
-                        Button("7 Lines") { store.linesVisible = 7 }
-                    } label: {
+                    Button(action: { showLineCapacityPicker = true }) {
                         HStack(spacing: 6) {
                             Text("\(store.linesVisible) LINES")
                                 .font(DesignSystem.display(size: 14, weight: .black))
@@ -364,9 +366,15 @@ struct SettingsView: View {
                         .foregroundColor(Color.lpInk)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(themeHighlight)
-                        .overlay(Rectangle().stroke(shadowColor, lineWidth: 2))
-                        .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
+                        .background(Color.lpPumpkin)
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
+                        .shadow(color: Color.lpDeepShadow, radius: 0, x: 4, y: 4)
+                    }
+                    .confirmationDialog("Line Capacity", isPresented: $showLineCapacityPicker, titleVisibility: .hidden) {
+                        Button("3 Lines") { store.linesVisible = 3 }
+                        Button("5 Lines") { store.linesVisible = 5 }
+                        Button("7 Lines") { store.linesVisible = 7 }
+                        Button("Cancel", role: .cancel) { }
                     }
                 }
             }
@@ -399,7 +407,7 @@ struct SettingsView: View {
             
             HStack(spacing: 6) {
                 Circle()
-                    .fill(AppGroupHelper.isAppGroupAccessible ? Color.lpMint : Color.lpCrimson)
+                    .fill(AppGroupHelper.isAppGroupAccessible ? Color.lpDeepShadow : Color.lpCrimson)
                     .frame(width: 6, height: 6)
                 
                 Text("v1.2")
@@ -410,7 +418,7 @@ struct SettingsView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
         .background(
-            MidnightWashiTape()
+            TornWashiTape()
                 .rotationEffect(.degrees(-2))
         )
         .compositingGroup()
@@ -496,25 +504,24 @@ struct HandDrawnTrack: Shape {
         let w = rect.width
         let h = rect.height
         
-        path.move(to: CGPoint(x: 0, y: h * 0.35))
+        // Matches canvas hand-drawn-slider clip-path: irregular top edge, straight bottom
+        let points: [CGFloat] = [
+            0.20, 0.00, 0.25, 0.05, 0.30, 0.10, 0.35, 0.15, 0.40, 0.20,
+            0.45, 0.25, 0.50, 0.30, 0.55, 0.35, 0.60, 0.40, 0.65, 0.30,
+            0.70, 0.55, 0.75, 0.35, 0.80, 0.60, 0.85, 0.40, 0.90, 0.65,
+            0.95, 0.45, 1.00, 0.70
+        ]
         
-        let steps = 20
-        let stepWidth = w / CGFloat(steps)
+        path.move(to: CGPoint(x: 0, y: h * 0.20))
         
-        for i in 0...steps {
-            let x = CGFloat(i) * stepWidth
-            let yTop = h * (i % 2 == 0 ? 0.25 : 0.15)
-            path.addLine(to: CGPoint(x: x, y: yTop))
+        for i in stride(from: 0, to: points.count, by: 2) {
+            let x = w * points[i]
+            let y = h * points[i + 1]
+            path.addLine(to: CGPoint(x: x, y: y))
         }
         
-        path.addLine(to: CGPoint(x: w, y: h * 0.65))
-        
-        for i in (0...steps).reversed() {
-            let x = CGFloat(i) * stepWidth
-            let yBottom = h * (i % 2 == 0 ? 0.75 : 0.85)
-            path.addLine(to: CGPoint(x: x, y: yBottom))
-        }
-        
+        path.addLine(to: CGPoint(x: w, y: h))
+        path.addLine(to: CGPoint(x: 0, y: h))
         path.closeSubpath()
         return path
     }
@@ -555,16 +562,3 @@ struct TornBorderShape: Shape {
     }
 }
 
-// MARK: - Midnight Washi Tape
-
-struct MidnightWashiTape: View {
-    var body: some View {
-        Canvas { context, size in
-            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color.lpPumpkin))
-        }
-        .overlay(
-            Rectangle()
-                .stroke(Color.lpCream.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [6]))
-        )
-    }
-}

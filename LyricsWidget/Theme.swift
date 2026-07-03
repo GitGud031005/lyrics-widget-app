@@ -177,6 +177,138 @@ struct DottedDivider: View {
     }
 }
 
+struct DotPatternDivider: View {
+    var color: Color = .lpPumpkin
+    var dotSize: CGFloat = 2.5
+    var spacing: CGFloat = 12
+    
+    var body: some View {
+        GeometryReader { geo in
+            Canvas { context, size in
+                let radius = dotSize / 2
+                let rowY = size.height / 2
+                for x in stride(from: 0, to: size.width, by: spacing) {
+                    let rect = CGRect(x: x - radius, y: rowY - radius, width: dotSize, height: dotSize)
+                    context.fill(Path(ellipseIn: rect), with: .color(color))
+                }
+            }
+        }
+        .frame(height: 12)
+    }
+}
+
+// MARK: - Midnight Settings Shapes
+
+/// Subtle scalloped/torn border matching the canvas `torn-border` clip-path.
+struct ScallopedTornBorderShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        let steps = 20
+        let step = w / CGFloat(steps)
+        let notch = h * 0.025
+        
+        // Top edge: gentle scallops
+        path.move(to: CGPoint(x: 0, y: notch * 0.8))
+        for i in 0...steps {
+            let x = CGFloat(i) * step
+            let y = (i % 2 == 0) ? 0 : notch
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        // Right edge
+        path.addLine(to: CGPoint(x: w, y: h - notch * 0.8))
+        
+        // Bottom edge: gentle scallops
+        for i in (0...steps).reversed() {
+            let x = CGFloat(i) * step
+            let y = (i % 2 == 0) ? h : h - notch
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        // Left edge
+        path.addLine(to: CGPoint(x: 0, y: notch * 0.8))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Slanted torn rectangle for the active lyric line washi tape.
+struct TornTapeShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        
+        path.move(to: CGPoint(x: w * 0.02, y: 0))
+        path.addLine(to: CGPoint(x: w * 0.98, y: h * 0.05))
+        path.addLine(to: CGPoint(x: w, y: h * 0.95))
+        path.addLine(to: CGPoint(x: 0, y: h))
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Small cream stipple dots usable as an overlay/clipped pattern.
+struct StipplePatternView: View {
+    var dotRadius: CGFloat = 0.6
+    var spacing: CGFloat = 10
+    var opacity: Double = 0.12
+    
+    var body: some View {
+        GeometryReader { geo in
+            Canvas { context, size in
+                let dotColor = Color.lpCream.opacity(opacity)
+                
+                for y in stride(from: 0, to: size.height, by: spacing) {
+                    for x in stride(from: 0, to: size.width, by: spacing) {
+                        let r = CGRect(x: x - dotRadius, y: y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
+                        context.fill(Path(ellipseIn: r), with: .color(dotColor))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Pumpkin washi tape with torn/notched left and right ends.
+struct TornWashiTape: View {
+    var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let notch: CGFloat = min(10, h * 0.35)
+            
+            Canvas { context, size in
+                var path = Path()
+                // Main body
+                path.move(to: CGPoint(x: notch, y: 0))
+                path.addLine(to: CGPoint(x: size.width - notch, y: 0))
+                // Right torn edge
+                path.addLine(to: CGPoint(x: size.width - notch * 0.2, y: h * 0.1))
+                path.addLine(to: CGPoint(x: size.width - notch * 0.8, y: h * 0.25))
+                path.addLine(to: CGPoint(x: size.width, y: h * 0.4))
+                path.addLine(to: CGPoint(x: size.width - notch * 0.1, y: h * 0.6))
+                path.addLine(to: CGPoint(x: size.width - notch * 0.9, y: h * 0.8))
+                path.addLine(to: CGPoint(x: size.width - notch, y: h))
+                // Bottom
+                path.addLine(to: CGPoint(x: notch, y: h))
+                // Left torn edge
+                path.addLine(to: CGPoint(x: notch * 0.9, y: h * 0.8))
+                path.addLine(to: CGPoint(x: notch * 0.1, y: h * 0.6))
+                path.addLine(to: CGPoint(x: 0, y: h * 0.4))
+                path.addLine(to: CGPoint(x: notch * 0.8, y: h * 0.25))
+                path.addLine(to: CGPoint(x: notch * 0.2, y: h * 0.1))
+                path.closeSubpath()
+                
+                context.fill(path, with: .color(Color.lpPumpkin))
+                context.stroke(path, with: .color(Color.lpCream.opacity(0.4)), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [6, 6]))
+            }
+        }
+        .frame(minHeight: 44)
+    }
+}
+
 // MARK: - View Extensions
 
 extension View {
