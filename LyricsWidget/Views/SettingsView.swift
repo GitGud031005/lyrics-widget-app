@@ -67,7 +67,7 @@ struct SettingsView: View {
             Text("REAL-TIME PREVIEW")
                 .font(.system(size: 10, weight: .black))
                 .tracking(2)
-                .foregroundColor(.lpInk.opacity(0.4))
+                .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
             // Mock "Home Screen" Backdrop
@@ -157,7 +157,7 @@ struct SettingsView: View {
             Text("QUICK STYLING PRESETS")
                 .font(.system(size: 10, weight: .black))
                 .tracking(2)
-                .foregroundColor(themeText.opacity(0.4))
+                .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -216,7 +216,7 @@ struct SettingsView: View {
             Text("MANUAL ADJUSTMENTS")
                 .font(.system(size: 10, weight: .black))
                 .tracking(2)
-                .foregroundColor(themeText.opacity(0.4))
+                .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
             VStack(spacing: 0) {
@@ -235,7 +235,7 @@ struct SettingsView: View {
                         Spacer()
                         Text("\(Int(store.fontSize)) pt")
                             .font(.system(size: 12, weight: .bold, design: .monospaced))
-                            .foregroundColor(themeText.opacity(0.6))
+                            .foregroundColor(themeText.opacity(0.8))
                     }
                     
                     Slider(value: $store.fontSize, in: 12...22, step: 1)
@@ -283,7 +283,7 @@ struct SettingsView: View {
                 .onSubmit(onCommit)
                 .frame(width: 80)
                 .multilineTextAlignment(.trailing)
-                .foregroundColor(themeText.opacity(0.6))
+                .foregroundColor(themeText.opacity(0.9))
                 .font(.system(size: 13, weight: .medium, design: .monospaced))
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.characters)

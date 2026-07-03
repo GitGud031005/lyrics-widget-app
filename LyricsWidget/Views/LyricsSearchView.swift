@@ -85,12 +85,12 @@ struct LyricsSearchView: View {
         HStack {
             Text("— find your voice, dear reader —")
                 .font(DesignSystem.display(size: 14, weight: .light, italic: true))
-                .opacity(0.6)
+                .opacity(0.9)
             Spacer()
             Text("VOL. I")
                 .font(.system(size: 10))
                 .tracking(2)
-                .opacity(0.7)
+                .opacity(0.6)
         }
         .padding(.horizontal, 24)
         .padding(.top, 12)
@@ -102,7 +102,7 @@ struct LyricsSearchView: View {
     private var searchBar: some View {
         HStack(spacing: 12) {
             Image(systemName: "pencil.line")
-                .foregroundColor(themeText.opacity(0.5))
+                .foregroundColor(themeText.opacity(0.7))
                 .font(.system(size: 18))
             
             TextField("Search song or artist...", text: $searchText)
@@ -122,7 +122,7 @@ struct LyricsSearchView: View {
                     errorMessage = nil
                 }) {
                     Image(systemName: "xmark")
-                        .foregroundColor(themeText.opacity(0.5))
+                        .foregroundColor(themeText.opacity(0.7))
                         .font(.system(size: 14, weight: .bold))
                 }
             }
@@ -131,10 +131,10 @@ struct LyricsSearchView: View {
         .padding(.vertical, 14)
         .background(
             PaperCutShape()
-                .fill(themeText.opacity(0.08))
+                .fill(themeText.opacity(0.1))
                 .overlay(
                     PaperCutShape()
-                        .stroke(themeText.opacity(0.2), lineWidth: 1)
+                        .stroke(themeText.opacity(0.3), lineWidth: 1)
                 )
         )
         .padding(.horizontal, 16)
@@ -190,7 +190,7 @@ struct LyricsSearchView: View {
                     
                     Text(result.artistName)
                         .font(DesignSystem.body(size: 14, weight: .medium))
-                        .foregroundColor(themeText.opacity(0.7))
+                        .foregroundColor(themeText.opacity(0.85))
                         .lineLimit(1)
                 }
                 
@@ -205,21 +205,21 @@ struct LyricsSearchView: View {
                             .background(Color.lpMint)
                             .foregroundColor(Color.lpInk)
                             .cornerRadius(4)
-                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(themeText, lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(themeText.opacity(0.8), lineWidth: 1))
                     }
                     
                     Text(formatDuration(result.duration))
                         .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(themeText.opacity(0.5))
+                        .foregroundColor(themeText.opacity(0.7))
                 }
             }
             .padding(.trailing, 16)
             .background(
                 PaperCutShape()
-                    .fill(themeText.opacity(0.05))
+                    .fill(themeText.opacity(0.08))
                     .overlay(
                         PaperCutShape()
-                            .stroke(themeText.opacity(0.15), lineWidth: 1)
+                            .stroke(themeText.opacity(0.2), lineWidth: 1)
                     )
             )
             .paperCutShadow()
