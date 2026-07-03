@@ -17,7 +17,7 @@ struct SettingsView: View {
     
     var body: some View {
         ZStack {
-            MidnightStippleBackground()
+            PaperBackground(color: themeBg)
             
             ScrollView {
                 VStack(spacing: 44) {
@@ -40,18 +40,18 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("CONFIGURE\nYOUR SETUP")
                 .font(DesignSystem.display(size: 42, weight: .black))
-                .foregroundColor(.lpCream)
+                .foregroundColor(themeText)
                 .lineSpacing(-6)
             
             HStack(spacing: 12) {
                 Rectangle()
-                    .fill(Color.lpPumpkin)
+                    .fill(themeHighlight)
                     .frame(width: 64, height: 8)
-                    .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
+                    .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
                 
                 Text("Version 2.0.4")
                     .font(DesignSystem.display(size: 14, weight: .bold, italic: true))
-                    .foregroundColor(.lpMint)
+                    .foregroundColor(themeText.opacity(0.7))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -78,97 +78,100 @@ struct SettingsView: View {
             
             // Main cream preview card
             ZStack(alignment: .topTrailing) {
-                PaperCutShape()
-                    .fill(Color.lpCream)
-                    .overlay(PaperCutShape().stroke(Color.lpDeepShadow, lineWidth: 6))
-                    .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
-                
-                VStack(spacing: 16) {
-                    // Deep-shadow lyrics viewport
-                    ZStack {
-                        Color.lpDeepShadow
-                            .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
-                        
-                        VStack(spacing: 12) {
-                            Text("You told me that we were forever")
-                                .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
-                                .foregroundColor(.lpCream.opacity(0.3))
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 12)
+                ZStack {
+                    Rectangle()
+                        .fill(Color.lpCream)
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 3))
+                    
+                    VStack(spacing: 16) {
+                        // Deep-shadow lyrics viewport
+                        ZStack {
+                            Color.lpDeepShadow
+                                .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
                             
-                            DottedDivider(color: .lpPumpkin.opacity(0.4))
-                                .padding(.horizontal, 20)
-                            
-                            ZStack {
-                                Color.lpPumpkin
-                                    .clipShape(PaperCutShape())
-                                    .rotationEffect(.degrees(-1))
-                                
-                                Canvas { context, size in
-                                    let stripeColor = Color.white.opacity(0.2)
-                                    let step: CGFloat = 14
-                                    let stripeWidth: CGFloat = 7
-                                    for x in stride(from: -size.height, to: size.width + step, by: step) {
-                                        var path = Path()
-                                        path.move(to: CGPoint(x: x + size.height, y: 0))
-                                        path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
-                                        path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
-                                        path.addLine(to: CGPoint(x: x, y: size.height))
-                                        path.closeSubpath()
-                                        context.fill(path, with: .color(stripeColor))
-                                    }
-                                }
-                                .blur(radius: 1.5)
-                                .allowsHitTesting(false)
-                                
-                                Text("But forever\nwas a lie...")
-                                    .font(DesignSystem.display(size: CGFloat(store.fontSize + 4), weight: .black))
-                                    .foregroundColor(.lpInk)
+                            VStack(spacing: 12) {
+                                Text("You told me that we were forever")
+                                    .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
+                                    .foregroundColor(.lpCream.opacity(0.3))
                                     .multilineTextAlignment(.center)
                                     .lineLimit(2)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 12)
+                                
+                                DottedDivider(color: .lpPumpkin.opacity(0.4))
+                                    .padding(.horizontal, 20)
+                                
+                                ZStack {
+                                    Color.lpPumpkin
+                                        .clipShape(PaperCutShape())
+                                        .rotationEffect(.degrees(-1))
+                                    
+                                    Canvas { context, size in
+                                        let stripeColor = Color.white.opacity(0.2)
+                                        let step: CGFloat = 14
+                                        let stripeWidth: CGFloat = 7
+                                        for x in stride(from: -size.height, to: size.width + step, by: step) {
+                                            var path = Path()
+                                            path.move(to: CGPoint(x: x + size.height, y: 0))
+                                            path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
+                                            path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
+                                            path.addLine(to: CGPoint(x: x, y: size.height))
+                                            path.closeSubpath()
+                                            context.fill(path, with: .color(stripeColor))
+                                        }
+                                    }
+                                    .blur(radius: 1.5)
+                                    .allowsHitTesting(false)
+                                    
+                                    Text("But forever\nwas a lie...")
+                                        .font(DesignSystem.display(size: CGFloat(store.fontSize + 4), weight: .black))
+                                        .foregroundColor(.lpInk)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                }
+                                .padding(.horizontal, 8)
+                                
+                                Text("And now I'm here alone")
+                                    .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
+                                    .foregroundColor(.lpCream.opacity(0.4))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 12)
                             }
-                            .padding(.horizontal, 8)
-                            
-                            Text("And now I'm here alone")
-                                .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
-                                .foregroundColor(.lpCream.opacity(0.4))
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 12)
+                            .padding(.vertical, 20)
                         }
-                        .padding(.vertical, 20)
-                    }
-                    .frame(height: 220)
-                    
-                    // Preview Window label + color squares
-                    HStack {
-                        HStack(spacing: 6) {
-                            Image(systemName: "music.note")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(.lpInk)
-                            
-                            Text("Preview Window")
-                                .font(.system(size: 10, weight: .black))
-                                .tracking(0.2)
-                                .foregroundColor(.lpInk)
-                        }
+                        .frame(height: 220)
                         
-                        Spacer()
-                        
-                        HStack(spacing: 6) {
-                            themeColorSquare(themeBg)
-                            themeColorSquare(themeText)
-                            themeColorSquare(themeHighlight)
+                        // Preview Window label + color squares
+                        HStack {
+                            HStack(spacing: 6) {
+                                Image(systemName: "music.note")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(.lpInk)
+                                
+                                Text("Preview Window")
+                                    .font(.system(size: 10, weight: .black))
+                                    .tracking(0.2)
+                                    .foregroundColor(.lpInk)
+                            }
+                            
+                            Spacer()
+                            
+                            HStack(spacing: 6) {
+                                themeColorSquare(themeBg)
+                                themeColorSquare(themeText)
+                                themeColorSquare(themeHighlight)
+                            }
                         }
+                        .padding(.horizontal, 4)
                     }
-                    .padding(.horizontal, 4)
+                    .padding(20)
                 }
-                .padding(20)
+                .compositingGroup()
+                .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
                 
                 // LIVE badge
                 ZStack {
@@ -205,10 +208,10 @@ struct SettingsView: View {
             HStack(spacing: 12) {
                 Text("Quick Presets")
                     .font(DesignSystem.display(size: 24, weight: .bold))
-                    .foregroundColor(.lpCream)
+                    .foregroundColor(themeText)
                 
                 Rectangle()
-                    .fill(Color.lpCream.opacity(0.2))
+                    .fill(themeText.opacity(0.2))
                     .frame(height: 2)
             }
             
@@ -251,6 +254,7 @@ struct SettingsView: View {
             }
             .background(Color.lpCream)
             .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 3))
+            .compositingGroup()
             .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
             
             if isFirst {
@@ -276,30 +280,31 @@ struct SettingsView: View {
         ZStack {
             // Deep shadow offset
             TornBorderShape()
-                .fill(Color.lpDeepShadow)
+                .fill(shadowColor)
                 .offset(x: 3, y: 3)
             
             TornBorderShape()
-                .fill(Color.lpMint.opacity(0.1))
-                .overlay(TornBorderShape().stroke(Color.lpMint.opacity(0.3), lineWidth: 4))
-                .shadow(color: .lpDeepShadow, radius: 0, x: 3, y: 3)
+                .fill(cardBg)
+                .overlay(TornBorderShape().stroke(themeText.opacity(0.15), lineWidth: 4))
+                .compositingGroup()
+                .shadow(color: shadowColor, radius: 0, x: 3, y: 3)
             
             VStack(spacing: 28) {
                 HStack {
                     Text("Custom Tweaks")
                         .font(DesignSystem.display(size: 24, weight: .bold))
-                        .foregroundColor(.lpMint)
+                        .foregroundColor(themeText)
                     
                     Spacer()
                     
                     ZStack {
                         Circle()
-                            .strokeBorder(Color.lpMint.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [4]))
+                            .strokeBorder(themeText.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [4]))
                             .frame(width: 40, height: 40)
                         
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.lpMint.opacity(0.7))
+                            .foregroundColor(themeText.opacity(0.7))
                     }
                 }
                 
@@ -309,13 +314,13 @@ struct SettingsView: View {
                         Text("TEXT SIZING")
                             .font(.system(size: 11, weight: .black))
                             .tracking(2)
-                            .foregroundColor(.lpCream.opacity(0.6))
+                            .foregroundColor(themeText.opacity(0.6))
                         
                         Spacer()
                         
                         Text("\(Int(store.fontSize))pt")
                             .font(DesignSystem.display(size: 28, weight: .black))
-                            .foregroundColor(.lpPumpkin)
+                            .foregroundColor(themeHighlight)
                     }
                     
                     MidnightSlider(value: $store.fontSize, range: 12...22, step: 1)
@@ -329,7 +334,7 @@ struct SettingsView: View {
                     }
                     .font(.system(size: 10, weight: .black))
                     .tracking(1)
-                    .foregroundColor(.lpCream.opacity(0.4))
+                    .foregroundColor(themeText.opacity(0.4))
                 }
                 
                 // Line Capacity
@@ -337,7 +342,7 @@ struct SettingsView: View {
                     Text("LINE CAPACITY")
                         .font(.system(size: 11, weight: .black))
                         .tracking(2)
-                        .foregroundColor(.lpCream.opacity(0.6))
+                        .foregroundColor(themeText.opacity(0.6))
                     
                     Spacer()
                     
@@ -353,12 +358,12 @@ struct SettingsView: View {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 10, weight: .black))
                         }
-                        .foregroundColor(.lpDeepShadow)
+                        .foregroundColor(Color.lpInk)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.lpPumpkin)
-                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
-                        .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
+                        .background(themeHighlight)
+                        .overlay(Rectangle().stroke(shadowColor, lineWidth: 2))
+                        .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
                     }
                 }
             }
@@ -405,6 +410,7 @@ struct SettingsView: View {
             MidnightWashiTape()
                 .rotationEffect(.degrees(-2))
         )
+        .compositingGroup()
         .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
     }
     
