@@ -7,6 +7,9 @@ struct SettingsView: View {
     private var themeBg: Color { Color(hex: store.backgroundColorHex) }
     private var themeText: Color { Color(hex: store.textColorHex) }
     private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
+    private var isDark: Bool { store.backgroundColorHex.uppercased() == "#3A2C5C" }
+    private var cardBg: Color { isDark ? Color(hex: "#A8D6B8").opacity(0.12) : Color.lpCream }
+    private var shadowColor: Color { isDark ? Color(hex: "#1A1230") : Color.lpInk.opacity(0.35) }
     
     // Midnight Mood presets
     private let themes = [
