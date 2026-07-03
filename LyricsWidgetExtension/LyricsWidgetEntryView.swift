@@ -152,7 +152,7 @@ struct LyricsWidgetEntryView : View {
                             ))
                             .foregroundColor(
                                 isCurrent
-                                    ? Color(hex: entry.highlightColorHex)
+                                    ? Color(hex: entry.textColorHex)
                                     : Color(hex: entry.textColorHex).opacity(0.55)
                             )
                             .lineLimit(1)
@@ -162,7 +162,7 @@ struct LyricsWidgetEntryView : View {
                             .background(
                                 ZStack {
                                     if isCurrent {
-                                        WashiTape(color: Color(hex: entry.highlightColorHex).opacity(0.25), rotation: .degrees(-1.5))
+                                        WashiTape(color: Color(hex: entry.highlightColorHex), rotation: .degrees(-1.5))
                                             .padding(.horizontal, -4)
                                     }
                                 }

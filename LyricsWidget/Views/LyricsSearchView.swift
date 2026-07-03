@@ -18,6 +18,9 @@ struct LyricsSearchView: View {
     private var themeBg: Color { Color(hex: store.backgroundColorHex) }
     private var themeText: Color { Color(hex: store.textColorHex) }
     private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
+    private var cardBgColor: Color {
+        Color.white.opacity(store.backgroundColorHex == "#3A2C5C" ? 0.12 : 0.6)
+    }
 
     
     var body: some View {
@@ -216,10 +219,10 @@ struct LyricsSearchView: View {
             .padding(.trailing, 16)
             .background(
                 PaperCutShape()
-                    .fill(themeText.opacity(0.08))
+                    .fill(cardBgColor)
                     .overlay(
                         PaperCutShape()
-                            .stroke(themeText.opacity(0.2), lineWidth: 1)
+                            .stroke(themeText.opacity(0.15), lineWidth: 1)
                     )
             )
             .paperCutShadow()
@@ -294,15 +297,12 @@ struct LyricsSearchView: View {
                         
                         Text("\(song.trackName) — \(song.artistName)")
                             .font(DesignSystem.display(size: 16, weight: .bold))
-                            .foregroundColor(themeHighlight)
+                            .foregroundColor(Color.lpCrimson)
                     }
                     .padding(.vertical, 20)
                     .padding(.horizontal, 32)
                     .background(
-                        ZStack {
-                            WashiTape(color: themeHighlight.opacity(0.2), rotation: .degrees(-1.5))
-                            WashiTape(color: themeHighlight.opacity(0.1), rotation: .degrees(0.5))
-                        }
+                        WashiTape(color: Color.lpPumpkin, rotation: .degrees(-1.5))
                     )
                 }
                 

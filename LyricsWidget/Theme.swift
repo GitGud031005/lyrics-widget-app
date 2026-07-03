@@ -102,24 +102,39 @@ struct PaperBackground: View {
 }
 
 struct WashiTape: View {
-    var color: Color = .lpPumpkin.opacity(0.5)
+    var color: Color = .lpPumpkin
     var rotation: Angle = .degrees(0)
     
     var body: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    gradient: Gradient(colors: [color, color.opacity(0.7)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .frame(height: 22)
-            .overlay(
-                Rectangle()
-                    .stroke(Color.lpInk.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [4]))
-            )
-            .rotationEffect(rotation)
+        Canvas { context, size in
+            let baseColor = color.opacity(0.4)
+            let stripeColor = color.opacity(0.55)
+            
+            // Fill background with base color
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(baseColor))
+            
+            // Draw diagonal stripes slanted /
+            let width = size.width
+            let height = size.height
+            let step: CGFloat = 16
+            let stripeWidth: CGFloat = 8
+            
+            for x in stride(from: -height, to: width + step, by: step) {
+                var path = Path()
+                path.move(to: CGPoint(x: x + height, y: 0))
+                path.addLine(to: CGPoint(x: x + height + stripeWidth, y: 0))
+                path.addLine(to: CGPoint(x: x + stripeWidth, y: height))
+                path.addLine(to: CGPoint(x: x, y: height))
+                path.closeSubpath()
+                context.fill(path, with: .color(stripeColor))
+            }
+        }
+        .frame(height: 22)
+        .overlay(
+            Rectangle()
+                .stroke(Color.lpInk.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [4]))
+        )
+        .rotationEffect(rotation)
     }
 }
 

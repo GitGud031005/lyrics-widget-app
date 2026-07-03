@@ -182,7 +182,7 @@ struct LyricsDisplayView: View {
                             .background(
                                 ZStack {
                                     if index == highlightedIndex {
-                                        WashiTape(color: themeHighlight.opacity(0.3), rotation: .degrees(-0.8))
+                                        WashiTape(color: themeHighlight, rotation: .degrees(-0.8))
                                             .transition(.asymmetric(
                                                 insertion: .scale(scale: 0.95).combined(with: .opacity),
                                                 removal: .opacity

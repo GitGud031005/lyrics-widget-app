@@ -124,7 +124,7 @@ struct SettingsView: View {
                                 let isCurrent = (index == 1)
                                 Text(text)
                                     .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: isCurrent ? .black : .medium))
-                                    .foregroundColor(isCurrent ? Color(hex: store.highlightColorHex) : Color(hex: store.textColorHex))
+                                    .foregroundColor(isCurrent ? Color(hex: store.textColorHex) : Color(hex: store.textColorHex).opacity(0.55))
                                     .lineLimit(1)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.vertical, 3)
@@ -132,7 +132,7 @@ struct SettingsView: View {
                                     .background(
                                         ZStack {
                                             if isCurrent {
-                                                WashiTape(color: Color(hex: store.highlightColorHex).opacity(0.2), rotation: .degrees(-1.2))
+                                                WashiTape(color: Color(hex: store.highlightColorHex), rotation: .degrees(-1.2))
                                             }
                                         }
                                     )
