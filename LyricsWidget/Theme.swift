@@ -9,6 +9,7 @@ extension Color {
     static let lpPumpkin = Color(hex: "#E08244")
     static let lpMint = Color(hex: "#A8D6B8")
     static let lpCrimson = Color(hex: "#C23D3D")
+    static let lpDeepShadow = Color(hex: "#1A1230")
     
     // Legacy aliases for compatibility or semantic usage
     static let lpBackground = lpCream
@@ -98,6 +99,32 @@ struct PaperBackground: View {
     }
 }
 
+// MARK: - Midnight Mood Background
+
+/// Deep ink background with cream stipple dots used by the Midnight Mood settings screen.
+struct MidnightStippleBackground: View {
+    var body: some View {
+        ZStack {
+            Color.lpInk
+            
+            Canvas { context, size in
+                let dotRadius: CGFloat = 0.8
+                let spacing: CGFloat = 10.0
+                let dotColor = Color.lpCream.opacity(0.12)
+                
+                for y in stride(from: 0, to: size.height, by: spacing) {
+                    for x in stride(from: 0, to: size.width, by: spacing) {
+                        let rect = CGRect(x: x - dotRadius, y: y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
+                        context.fill(Path(ellipseIn: rect), with: .color(dotColor))
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+        }
+        .ignoresSafeArea()
+    }
+}
+
 struct WashiTape: View {
     var color: Color = .lpPumpkin
     var rotation: Angle = .degrees(0)
@@ -136,13 +163,15 @@ struct WashiTape: View {
 }
 
 struct DottedDivider: View {
+    var color: Color = .lpInk
+    
     var body: some View {
         GeometryReader { geo in
             Path { path in
                 path.move(to: CGPoint(x: 0, y: geo.size.height / 2))
                 path.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height / 2))
             }
-            .stroke(Color.lpInk, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [0.1, 12]))
+            .stroke(color, style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [0.1, 12]))
         }
         .frame(height: 12)
     }

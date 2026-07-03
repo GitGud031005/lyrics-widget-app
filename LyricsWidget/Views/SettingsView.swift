@@ -4,247 +4,268 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var store: LyricsStore
     
-    @State private var localBgHex: String = ""
-    @State private var localTextHex: String = ""
-    @State private var localHighlightHex: String = ""
-    
     private var themeBg: Color { Color(hex: store.backgroundColorHex) }
     private var themeText: Color { Color(hex: store.textColorHex) }
     private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
-    private var isDark: Bool { store.backgroundColorHex.uppercased() == "#3A2C5C" }
-    private var cardBg: Color { isDark ? Color(hex: "#A8D6B8").opacity(0.12) : Color.lpCream }
-    private var shadowColor: Color { isDark ? Color(hex: "#1A1230") : Color.lpInk.opacity(0.35) }
     
-    // Preset themes (Updated for Lamplight Press)
+    // Midnight Mood presets
     private let themes = [
-        Theme(name: "Classic", bg: "#F4E9D0", text: "#3A2C5C", highlight: "#E08244"),
-        Theme(name: "Mint", bg: "#A8D6B8", text: "#3A2C5C", highlight: "#C23D3D"),
-        Theme(name: "Midnight", bg: "#3A2C5C", text: "#F4E9D0", highlight: "#E08244"),
-        Theme(name: "Parchment", bg: "#EFE0BE", text: "#3A2C5C", highlight: "#C23D3D")
+        Theme(name: "Midnight Mood", bg: "#3A2C5C", text: "#F4E9D0", highlight: "#E08244"),
+        Theme(name: "Minty Fresh", bg: "#A8D6B8", text: "#3A2C5C", highlight: "#C23D3D"),
+        Theme(name: "Classic Press", bg: "#F4E9D0", text: "#3A2C5C", highlight: "#E08244")
     ]
     
     var body: some View {
-        NavigationStack {
-            ZStack {
-                PaperBackground(color: themeBg)
-                
-                ScrollView {
-                    VStack(spacing: 40) {
-                        // Live Preview Box
-                        widgetPreviewSection
-                        
-                        // Theme Presets
-                        themePresetsSection
-                        
-                        // Fine-tuned settings
-                        customTweaksSection
-                        
-                        // Diagnostics & Connectivity
-                        diagnosticsSection
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 24)
-                    .padding(.bottom, 80)
+        ZStack {
+            MidnightStippleBackground()
+            
+            ScrollView {
+                VStack(spacing: 44) {
+                    headerSection
+                    widgetPreviewSection
+                    themePresetsSection
+                    customTweaksSection
+                    diagnosticsSection
                 }
-            }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("CONFIGURE YOUR SETUP")
-                        .font(DesignSystem.display(size: 16, weight: .black))
-                        .tracking(2.5)
-                        .foregroundColor(themeText)
-                }
-            }
-            .onAppear {
-                localBgHex = store.backgroundColorHex
-                localTextHex = store.textColorHex
-                localHighlightHex = store.highlightColorHex
+                .padding(.horizontal, 24)
+                .padding(.top, 48)
+                .padding(.bottom, 100)
             }
         }
+    }
+    
+    // MARK: - Header
+    
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("CONFIGURE\nYOUR SETUP")
+                .font(DesignSystem.display(size: 42, weight: .black))
+                .foregroundColor(.lpCream)
+                .lineSpacing(-6)
+            
+            HStack(spacing: 12) {
+                Rectangle()
+                    .fill(Color.lpPumpkin)
+                    .frame(width: 64, height: 8)
+                    .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
+                
+                Text("Version 2.0.4")
+                    .font(DesignSystem.display(size: 14, weight: .bold, italic: true))
+                    .foregroundColor(.lpMint)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     // MARK: - Widget Preview
     
     private var widgetPreviewSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("REAL-TIME PREVIEW")
-                .font(.system(size: 10, weight: .black))
-                .tracking(2)
-                .foregroundColor(themeText.opacity(0.8))
-                .padding(.leading, 8)
+        ZStack {
+            // Decorative layered paper sheets
+            PaperCutShape()
+                .fill(Color.lpMint)
+                .frame(width: 280, height: 180)
+                .offset(x: -60, y: -60)
+                .rotationEffect(.degrees(3))
+                .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
             
-            // Scrap-paper collage backdrop
-            ZStack {
-                // Decorative layered paper sheets
+            PaperCutShape()
+                .fill(Color.lpCream)
+                .frame(width: 260, height: 180)
+                .offset(x: -50, y: -50)
+                .rotationEffect(.degrees(-2))
+                .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
+            
+            // Main cream preview card
+            ZStack(alignment: .topTrailing) {
                 PaperCutShape()
-                    .fill(Color.lpMint)
-                    .frame(width: 280, height: 180)
-                    .offset(x: -70, y: -70)
-                    .rotationEffect(.degrees(5))
-                    .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
+                    .fill(Color.lpCream)
+                    .overlay(PaperCutShape().stroke(Color.lpDeepShadow, lineWidth: 6))
+                    .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
                 
-                PaperCutShape()
-                    .fill(Color.lpCream2)
-                    .frame(width: 200, height: 120)
-                    .offset(x: 90, y: 60)
-                    .rotationEffect(.degrees(-10))
-                    .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
-                
-                // The Widget Mockup
-                ZStack {
-                    PaperCutShape()
-                        .fill(Color(hex: store.backgroundColorHex))
-                        .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
-                    
-                    VStack(spacing: 0) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(store.currentSong?.trackName ?? "Song Name")
-                                    .font(DesignSystem.display(size: 14, weight: .black))
-                                    .foregroundColor(Color(hex: store.textColorHex))
-                                    .lineLimit(1)
-                                
-                                Text(store.currentSong?.artistName ?? "Artist Name")
-                                    .font(DesignSystem.display(size: 11, weight: .medium, italic: true))
-                                    .foregroundColor(Color(hex: store.textColorHex).opacity(0.7))
-                                    .lineLimit(1)
-                            }
-                            Spacer()
-                            Image(systemName: "music.note.list")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(Color(hex: store.highlightColorHex))
-                        }
-                        .padding(.bottom, 12)
+                VStack(spacing: 16) {
+                    // Deep-shadow lyrics viewport
+                    ZStack {
+                        Color.lpDeepShadow
+                            .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
                         
-                        // Mock lyrics window
-                        VStack(alignment: .leading, spacing: 6) {
-                            let lines = ["You told me that we were forever", "But forever was a lie...", "And now I'm here alone"]
+                        VStack(spacing: 12) {
+                            Text("You told me that we were forever")
+                                .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
+                                .foregroundColor(.lpCream.opacity(0.3))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 12)
                             
-                            ForEach(0..<lines.count, id: \.self) { index in
-                                let text = lines[index]
-                                let isCurrent = (index == 1)
+                            DottedDivider(color: .lpPumpkin.opacity(0.4))
+                                .padding(.horizontal, 20)
+                            
+                            ZStack {
+                                Color.lpPumpkin
+                                    .clipShape(PaperCutShape())
+                                    .rotationEffect(.degrees(-1))
                                 
-                                Text(text)
-                                    .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: isCurrent ? .black : .medium))
-                                    .foregroundColor(isCurrent ? Color.lpInk : Color(hex: store.textColorHex).opacity(0.55))
-                                    .lineLimit(2)
-                                    .frame(maxWidth: .infinity, alignment: .center)
+                                Canvas { context, size in
+                                    let stripeColor = Color.white.opacity(0.2)
+                                    let step: CGFloat = 14
+                                    let stripeWidth: CGFloat = 7
+                                    for x in stride(from: -size.height, to: size.width + step, by: step) {
+                                        var path = Path()
+                                        path.move(to: CGPoint(x: x + size.height, y: 0))
+                                        path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
+                                        path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
+                                        path.addLine(to: CGPoint(x: x, y: size.height))
+                                        path.closeSubpath()
+                                        context.fill(path, with: .color(stripeColor))
+                                    }
+                                }
+                                .blur(radius: 1.5)
+                                .allowsHitTesting(false)
+                                
+                                Text("But forever\nwas a lie...")
+                                    .font(DesignSystem.display(size: CGFloat(store.fontSize + 4), weight: .black))
+                                    .foregroundColor(.lpInk)
                                     .multilineTextAlignment(.center)
-                                    .padding(.vertical, 6)
-                                    .padding(.horizontal, 12)
-                                    .background(
-                                        Group {
-                                            if isCurrent {
-                                                lyricHighlightTape
-                                            }
-                                        }
-                                    )
+                                    .lineLimit(2)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
                             }
+                            .padding(.horizontal, 8)
+                            
+                            Text("And now I'm here alone")
+                                .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: .medium, italic: true))
+                                .foregroundColor(.lpCream.opacity(0.4))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 12)
+                        }
+                        .padding(.vertical, 20)
+                    }
+                    .frame(height: 220)
+                    
+                    // Preview Window label + color squares
+                    HStack {
+                        HStack(spacing: 6) {
+                            Image(systemName: "music.note")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.lpInk)
+                            
+                            Text("Preview Window")
+                                .font(.system(size: 10, weight: .black))
+                                .tracking(0.2)
+                                .foregroundColor(.lpInk)
+                        }
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 6) {
+                            themeColorSquare(themeBg)
+                            themeColorSquare(themeText)
+                            themeColorSquare(themeHighlight)
                         }
                     }
-                    .padding(20)
+                    .padding(.horizontal, 4)
                 }
-                .frame(width: 300, height: 200)
+                .padding(20)
+                
+                // LIVE badge
+                ZStack {
+                    Rectangle()
+                        .fill(Color.lpPumpkin)
+                        .frame(width: 48, height: 48)
+                        .rotationEffect(.degrees(12))
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
+                        .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
+                    
+                    Text("LIVE")
+                        .font(DesignSystem.display(size: 11, weight: .black))
+                        .foregroundColor(.lpDeepShadow)
+                        .rotationEffect(.degrees(12))
+                }
+                .offset(x: 10, y: -10)
             }
-            .frame(height: 260)
+            .frame(width: 320, height: 340)
         }
+        .frame(height: 380)
     }
     
-    private var lyricHighlightTape: some View {
-        GeometryReader { geo in
-            ZStack {
-                Color.lpPumpkin
-                    .rotationEffect(.degrees(-1))
-                    .offset(x: 2, y: 0)
-                // Subtle blurred white stripes
-                Canvas { context, size in
-                    let stripeColor = Color.white.opacity(0.2)
-                    let step: CGFloat = 14
-                    let stripeWidth: CGFloat = 7
-                    for x in stride(from: -size.height, to: size.width + step, by: step) {
-                        var path = Path()
-                        path.move(to: CGPoint(x: x + size.height, y: 0))
-                        path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
-                        path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
-                        path.addLine(to: CGPoint(x: x, y: size.height))
-                        path.closeSubpath()
-                        context.fill(path, with: .color(stripeColor))
-                    }
-                }
-                .blur(radius: 1.5)
-                .allowsHitTesting(false)
-            }
-        }
+    private func themeColorSquare(_ color: Color) -> some View {
+        Rectangle()
+            .fill(color)
+            .frame(width: 12, height: 12)
+            .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 1))
     }
     
-    // MARK: - Themes
+    // MARK: - Theme Presets
     
     private var themePresetsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("QUICK STYLING PRESETS")
-                .font(.system(size: 10, weight: .black))
-                .tracking(2)
-                .foregroundColor(themeText.opacity(0.8))
-                .padding(.leading, 8)
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 12) {
+                Text("Quick Presets")
+                    .font(DesignSystem.display(size: 24, weight: .bold))
+                    .foregroundColor(.lpCream)
+                
+                Rectangle()
+                    .fill(Color.lpCream.opacity(0.2))
+                    .frame(height: 2)
+            }
             
-            // Stacked polaroid-style presets
-            VStack(spacing: -24) {
+            VStack(spacing: -50) {
                 ForEach(0..<themes.count, id: \.self) { index in
                     let theme = themes[index]
                     Button(action: { applyTheme(theme) }) {
-                        polaroidCard(theme: theme, index: index, isSelected: isThemeApplied(theme))
+                        polaroidCard(theme: theme, index: index)
                     }
                     .buttonStyle(.plain)
                     .zIndex(Double(themes.count - index))
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 24)
+            .padding(.bottom, 50)
         }
     }
     
-    private func polaroidCard(theme: Theme, index: Int, isSelected: Bool) -> some View {
-        let rotations: [Double] = [-4, 5, -2, 3]
-        let offsets: [CGFloat] = [0, 24, -16, 8]
+    private func polaroidCard(theme: Theme, index: Int) -> some View {
+        let rotations: [Double] = [-4, 5, -2]
+        let offsets: [CGFloat] = [0, 24, -16]
+        let isFirst = index == 0
         
-        return VStack(spacing: 10) {
-            ZStack {
-                PaperCutShape()
-                    .fill(Color(hex: theme.bg))
-                    .frame(height: 72)
-                    .overlay(PaperCutShape().stroke(Color.lpInk.opacity(0.2), lineWidth: 1))
-                
-                HStack(spacing: 12) {
-                    Circle()
-                        .fill(Color(hex: theme.text))
-                        .frame(width: 14, height: 14)
-                    
-                    Circle()
-                        .fill(Color(hex: theme.highlight))
-                        .frame(width: 20, height: 20)
-                    
-                    Spacer()
+        return ZStack {
+            VStack(spacing: 0) {
+                ZStack {
+                    Rectangle()
+                        .fill(Color(hex: theme.bg))
+                        .aspectRatio(16.0 / 8.0, contentMode: .fit)
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
                     
                     Text(theme.name.uppercased())
-                        .font(DesignSystem.display(size: 18, weight: .black))
+                        .font(DesignSystem.display(size: 20, weight: .black))
                         .foregroundColor(Color(hex: theme.text))
+                        .lineLimit(1)
+                        .tracking(-0.5)
                 }
-                .padding(.horizontal, 16)
+                .padding([.horizontal, .top], 12)
+                .padding(.bottom, 40)
+            }
+            .background(Color.lpCream)
+            .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 3))
+            .shadow(color: .lpDeepShadow, radius: 0, x: 8, y: 8)
+            
+            if isFirst {
+                VStack {
+                    Rectangle()
+                        .fill(Color.lpPumpkin.opacity(0.8))
+                        .frame(width: 15, height: 40)
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 1))
+                        .shadow(color: .lpDeepShadow, radius: 0, x: 2, y: 2)
+                        .rotationEffect(.degrees(-5))
+                        .offset(y: -20)
+                    Spacer()
+                }
             }
         }
-        .padding(12)
-        .padding(.bottom, 28)
-        .background(
-            PaperCutShape()
-                .fill(Color.lpCream)
-                .overlay(
-                    PaperCutShape()
-                        .stroke(isSelected ? Color.lpPumpkin : Color.lpInk.opacity(0.15), lineWidth: isSelected ? 3 : 1)
-                )
-        )
-        .shadow(color: shadowColor, radius: 0, x: 6, y: 6)
         .rotationEffect(.degrees(rotations[index % rotations.count]))
         .offset(x: offsets[index % offsets.count])
     }
@@ -252,29 +273,52 @@ struct SettingsView: View {
     // MARK: - Custom Tweaks
     
     private var customTweaksSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("CUSTOM TWEAKS")
-                .font(.system(size: 10, weight: .black))
-                .tracking(2)
-                .foregroundColor(themeText.opacity(0.8))
-                .padding(.leading, 8)
+        ZStack {
+            // Deep shadow offset
+            TornBorderShape()
+                .fill(Color.lpDeepShadow)
+                .offset(x: 3, y: 3)
             
-            VStack(spacing: 0) {
+            TornBorderShape()
+                .fill(Color.lpMint.opacity(0.1))
+                .overlay(TornBorderShape().stroke(Color.lpMint.opacity(0.3), lineWidth: 4))
+                .shadow(color: .lpDeepShadow, radius: 0, x: 3, y: 3)
+            
+            VStack(spacing: 28) {
+                HStack {
+                    Text("Custom Tweaks")
+                        .font(DesignSystem.display(size: 24, weight: .bold))
+                        .foregroundColor(.lpMint)
+                    
+                    Spacer()
+                    
+                    ZStack {
+                        Circle()
+                            .strokeBorder(Color.lpMint.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [4]))
+                            .frame(width: 40, height: 40)
+                        
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.lpMint.opacity(0.7))
+                    }
+                }
+                
                 // Text Sizing
-                VStack(spacing: 4) {
+                VStack(spacing: 8) {
                     HStack {
                         Text("TEXT SIZING")
                             .font(.system(size: 11, weight: .black))
                             .tracking(2)
-                            .foregroundColor(themeText.opacity(0.6))
+                            .foregroundColor(.lpCream.opacity(0.6))
+                        
                         Spacer()
+                        
                         Text("\(Int(store.fontSize))pt")
-                            .font(DesignSystem.display(size: 22, weight: .black))
-                            .foregroundColor(themeHighlight)
+                            .font(DesignSystem.display(size: 28, weight: .black))
+                            .foregroundColor(.lpPumpkin)
                     }
                     
-                    Slider(value: $store.fontSize, in: 12...22, step: 1)
-                        .tint(themeHighlight)
+                    MidnightSlider(value: $store.fontSize, range: 12...22, step: 1)
                     
                     HStack {
                         Text("PETITE")
@@ -285,77 +329,83 @@ struct SettingsView: View {
                     }
                     .font(.system(size: 10, weight: .black))
                     .tracking(1)
-                    .foregroundColor(themeText.opacity(0.4))
+                    .foregroundColor(.lpCream.opacity(0.4))
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                
-                Divider().background(themeText.opacity(0.08)).padding(.horizontal, 20)
                 
                 // Line Capacity
                 HStack {
                     Text("LINE CAPACITY")
                         .font(.system(size: 11, weight: .black))
                         .tracking(2)
-                        .foregroundColor(themeText.opacity(0.6))
+                        .foregroundColor(.lpCream.opacity(0.6))
+                    
                     Spacer()
-                    Picker("", selection: $store.linesVisible) {
-                        Text("3 Lines").tag(3)
-                        Text("5 Lines").tag(5)
-                        Text("7 Lines").tag(7)
+                    
+                    Menu {
+                        Button("3 Lines") { store.linesVisible = 3 }
+                        Button("5 Lines") { store.linesVisible = 5 }
+                        Button("7 Lines") { store.linesVisible = 7 }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("\(store.linesVisible) LINES")
+                                .font(DesignSystem.display(size: 14, weight: .black))
+                            
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 10, weight: .black))
+                        }
+                        .foregroundColor(.lpDeepShadow)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.lpPumpkin)
+                        .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
+                        .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
                     }
-                    .pickerStyle(.menu)
-                    .tint(themeHighlight)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(themeHighlight)
-                    .foregroundColor(Color.lpInk)
-                    .clipShape(PaperCutShape())
-                    .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
             }
-            .background(
-                PaperCutShape()
-                    .fill(cardBg)
-                    .overlay(PaperCutShape().stroke(themeText.opacity(0.15), lineWidth: 1))
-            )
-            .shadow(color: shadowColor, radius: 0, x: 6, y: 6)
+            .padding(24)
         }
     }
     
     // MARK: - Diagnostics
     
     private var diagnosticsSection: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: AppGroupHelper.isAppGroupAccessible ? "checkmark.seal.fill" : "exclamationmark.shield.fill")
-                    .font(.system(size: 18))
-                Text(AppGroupHelper.isAppGroupAccessible ? "SHARED STORAGE ACTIVE" : "CONNECTION REQUIRED")
-                    .font(DesignSystem.display(size: 12, weight: .black))
-                    .tracking(1)
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.lpMint)
+                    .frame(width: 28, height: 28)
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.lpDeepShadow, lineWidth: 2))
+                    .rotationEffect(.degrees(3))
+                
+                Image(systemName: "checkmark")
+                    .font(.system(size: 14, weight: .black))
+                    .foregroundColor(.lpDeepShadow)
             }
-            .foregroundColor(Color.lpInk)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(
-                WashiTape(color: Color.lpCream2, rotation: .degrees(-0.5))
-                    .overlay(Rectangle().stroke(Color.lpInk.opacity(0.15), lineWidth: 1))
-            )
-            .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
             
-            VStack(spacing: 4) {
-                Text("LYRICO v1.0")
+            Text(AppGroupHelper.isAppGroupAccessible ? "Storage Sync Active" : "Connection Required")
+                .font(DesignSystem.display(size: 14, weight: .black))
+                .tracking(0.5)
+                .foregroundColor(.lpDeepShadow)
+            
+            Spacer()
+            
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(AppGroupHelper.isAppGroupAccessible ? Color.lpMint : Color.lpCrimson)
+                    .frame(width: 6, height: 6)
+                
+                Text("v1.2")
                     .font(.system(size: 10, weight: .black))
-                    .tracking(1)
-                Text("picture books for the home screen")
-                    .font(DesignSystem.display(size: 10, weight: .light, italic: true))
+                    .foregroundColor(.lpDeepShadow.opacity(0.6))
             }
-            .foregroundColor(themeText.opacity(0.4))
-            .padding(.top, 16)
         }
-        .padding(.bottom, 32)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
+        .background(
+            MidnightWashiTape()
+                .rotationEffect(.degrees(-2))
+        )
+        .shadow(color: .lpDeepShadow, radius: 0, x: 4, y: 4)
     }
     
     // MARK: - Helper Methods
@@ -367,19 +417,10 @@ struct SettingsView: View {
                 store.textColorHex = theme.text
                 store.highlightColorHex = theme.highlight
             }
-            localBgHex = theme.bg
-            localTextHex = theme.text
-            localHighlightHex = theme.highlight
         }
         
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
-    }
-    
-    private func isThemeApplied(_ theme: Theme) -> Bool {
-        return store.backgroundColorHex.uppercased() == theme.bg.uppercased() &&
-               store.textColorHex.uppercased() == theme.text.uppercased() &&
-               store.highlightColorHex.uppercased() == theme.highlight.uppercased()
     }
     
     struct Theme: Identifiable {
@@ -388,5 +429,133 @@ struct SettingsView: View {
         let bg: String
         let text: String
         let highlight: String
+    }
+}
+
+// MARK: - Midnight Slider
+
+struct MidnightSlider: View {
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+    let step: Double
+    
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                HandDrawnTrack()
+                    .fill(Color.lpDeepShadow)
+                    .frame(height: 8)
+                
+                Rectangle()
+                    .fill(Color.lpPumpkin)
+                    .frame(width: 24, height: 12)
+                    .overlay(Rectangle().stroke(Color.lpDeepShadow, lineWidth: 2))
+                    .shadow(color: .lpDeepShadow, radius: 0, x: 2, y: 2)
+                    .offset(x: thumbOffset(in: geo))
+            }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture()
+                    .onChanged { drag in
+                        updateValue(from: drag.location.x, in: geo)
+                    }
+            )
+        }
+        .frame(height: 24)
+    }
+    
+    private func thumbOffset(in geo: GeometryProxy) -> CGFloat {
+        let trackWidth = geo.size.width - 24
+        let pct = CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound))
+        return max(0, min(trackWidth, pct * trackWidth))
+    }
+    
+    private func updateValue(from x: CGFloat, in geo: GeometryProxy) {
+        let trackWidth = geo.size.width - 24
+        let pct = Double(max(0, min(1, x / trackWidth)))
+        let raw = range.lowerBound + pct * (range.upperBound - range.lowerBound)
+        let stepped = round(raw / step) * step
+        value = max(range.lowerBound, min(range.upperBound, stepped))
+    }
+}
+
+// MARK: - Hand Drawn Track
+
+struct HandDrawnTrack: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        
+        path.move(to: CGPoint(x: 0, y: h * 0.35))
+        
+        let steps = 20
+        let stepWidth = w / CGFloat(steps)
+        
+        for i in 0...steps {
+            let x = CGFloat(i) * stepWidth
+            let yTop = h * (i % 2 == 0 ? 0.25 : 0.15)
+            path.addLine(to: CGPoint(x: x, y: yTop))
+        }
+        
+        path.addLine(to: CGPoint(x: w, y: h * 0.65))
+        
+        for i in (0...steps).reversed() {
+            let x = CGFloat(i) * stepWidth
+            let yBottom = h * (i % 2 == 0 ? 0.75 : 0.85)
+            path.addLine(to: CGPoint(x: x, y: yBottom))
+        }
+        
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Torn Border Shape
+
+struct TornBorderShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        let zigzagCount = 20
+        
+        // Top edge: zigzag down/up
+        path.move(to: CGPoint(x: 0, y: h * 0.02))
+        for i in 0...zigzagCount {
+            let x = w * CGFloat(i) / CGFloat(zigzagCount)
+            let y = (i % 2 == 0) ? 0 : h * 0.03
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        // Right edge
+        path.addLine(to: CGPoint(x: w, y: h * 0.98))
+        
+        // Bottom edge: zigzag up/down
+        for i in (0...zigzagCount).reversed() {
+            let x = w * CGFloat(i) / CGFloat(zigzagCount)
+            let y = (i % 2 == 0) ? h : h * 0.97
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        
+        // Left edge
+        path.addLine(to: CGPoint(x: 0, y: h * 0.02))
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+// MARK: - Midnight Washi Tape
+
+struct MidnightWashiTape: View {
+    var body: some View {
+        Canvas { context, size in
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color.lpPumpkin))
+        }
+        .overlay(
+            Rectangle()
+                .stroke(Color.lpCream.opacity(0.4), style: StrokeStyle(lineWidth: 2, dash: [6]))
+        )
     }
 }
