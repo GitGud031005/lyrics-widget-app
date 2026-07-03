@@ -11,6 +11,9 @@ struct SettingsView: View {
     private var themeBg: Color { Color(hex: store.backgroundColorHex) }
     private var themeText: Color { Color(hex: store.textColorHex) }
     private var themeHighlight: Color { Color(hex: store.highlightColorHex) }
+    private var isDark: Bool { store.backgroundColorHex.uppercased() == "#3A2C5C" }
+    private var cardBg: Color { isDark ? Color(hex: "#A8D6B8").opacity(0.12) : Color.lpCream }
+    private var shadowColor: Color { isDark ? Color(hex: "#1A1230") : Color.lpInk.opacity(0.35) }
     
     // Preset themes (Updated for Lamplight Press)
     private let themes = [
@@ -26,7 +29,7 @@ struct SettingsView: View {
                 PaperBackground(color: themeBg)
                 
                 ScrollView {
-                    VStack(spacing: 36) {
+                    VStack(spacing: 40) {
                         // Live Preview Box
                         widgetPreviewSection
                         
@@ -34,12 +37,14 @@ struct SettingsView: View {
                         themePresetsSection
                         
                         // Fine-tuned settings
-                        appearanceSettingsSection
+                        customTweaksSection
                         
                         // Diagnostics & Connectivity
                         diagnosticsSection
                     }
-                    .padding(24)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 24)
+                    .padding(.bottom, 80)
                 }
             }
             .navigationTitle("")
@@ -70,33 +75,30 @@ struct SettingsView: View {
                 .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
-            // Mock "Home Screen" Backdrop
+            // Scrap-paper collage backdrop
             ZStack {
-                // Background texture
-                PaperBackground(color: themeHighlight.opacity(0.15), hasGrain: false)
+                // Decorative layered paper sheets
+                PaperCutShape()
+                    .fill(Color.lpMint)
+                    .frame(width: 280, height: 180)
+                    .offset(x: -70, y: -70)
+                    .rotationEffect(.degrees(5))
+                    .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
                 
-                // Decorative Paper Clouds (Collage style)
-                Group {
-                    PaperCutShape()
-                        .fill(themeBg.opacity(0.5))
-                        .frame(width: 280, height: 180)
-                        .offset(x: -80, y: -80)
-                        .rotationEffect(.degrees(5))
-                    
-                    PaperCutShape()
-                        .fill(themeHighlight.opacity(0.15))
-                        .frame(width: 200, height: 120)
-                        .offset(x: 100, y: 60)
-                        .rotationEffect(.degrees(-10))
-                }
+                PaperCutShape()
+                    .fill(Color.lpCream2)
+                    .frame(width: 200, height: 120)
+                    .offset(x: 90, y: 60)
+                    .rotationEffect(.degrees(-10))
+                    .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
                 
                 // The Widget Mockup
                 ZStack {
                     PaperCutShape()
                         .fill(Color(hex: store.backgroundColorHex))
-                        .paperCutShadow()
+                        .shadow(color: shadowColor, radius: 0, x: 8, y: 8)
                     
-                    VStack(spacing: 8) {
+                    VStack(spacing: 0) {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(store.currentSong?.trackName ?? "Song Name")
@@ -114,25 +116,28 @@ struct SettingsView: View {
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(Color(hex: store.highlightColorHex))
                         }
-                        .padding(.bottom, 6)
+                        .padding(.bottom, 12)
                         
                         // Mock lyrics window
                         VStack(alignment: .leading, spacing: 6) {
-                            let lines = ["...borrowed the moon.", "Tonight, said the rabbit...", "Just for safe keeping."]
+                            let lines = ["You told me that we were forever", "But forever was a lie...", "And now I'm here alone"]
                             
-                            ForEach(Array(lines.enumerated()), id: \.offset) { index, text in
+                            ForEach(0..<lines.count, id: \.self) { index in
+                                let text = lines[index]
                                 let isCurrent = (index == 1)
+                                
                                 Text(text)
                                     .font(DesignSystem.display(size: CGFloat(store.fontSize), weight: isCurrent ? .black : .medium))
-                                    .foregroundColor(isCurrent ? Color(hex: store.textColorHex) : Color(hex: store.textColorHex).opacity(0.55))
-                                    .lineLimit(1)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.vertical, 3)
-                                    .padding(.horizontal, 8)
+                                    .foregroundColor(isCurrent ? Color.lpInk : Color(hex: store.textColorHex).opacity(0.55))
+                                    .lineLimit(2)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 12)
                                     .background(
-                                        ZStack {
+                                        Group {
                                             if isCurrent {
-                                                WashiTape(color: Color(hex: store.highlightColorHex), rotation: .degrees(-1.2))
+                                                lyricHighlightTape
                                             }
                                         }
                                     )
@@ -141,12 +146,36 @@ struct SettingsView: View {
                     }
                     .padding(20)
                 }
-                .frame(width: 310, height: 170)
+                .frame(width: 300, height: 200)
             }
-            .frame(height: 240)
-            .clipShape(PaperCutShape())
-            .overlay(PaperCutShape().stroke(themeText.opacity(0.25), lineWidth: 2))
-            .paperCutShadow()
+            .frame(height: 260)
+        }
+    }
+    
+    private var lyricHighlightTape: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color.lpPumpkin
+                    .rotationEffect(.degrees(-1))
+                    .offset(x: 2, y: 0)
+                // Subtle blurred white stripes
+                Canvas { context, size in
+                    let stripeColor = Color.white.opacity(0.2)
+                    let step: CGFloat = 14
+                    let stripeWidth: CGFloat = 7
+                    for x in stride(from: -size.height, to: size.width + step, by: step) {
+                        var path = Path()
+                        path.move(to: CGPoint(x: x + size.height, y: 0))
+                        path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
+                        path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
+                        path.addLine(to: CGPoint(x: x, y: size.height))
+                        path.closeSubpath()
+                        context.fill(path, with: .color(stripeColor))
+                    }
+                }
+                .blur(radius: 1.5)
+                .allowsHitTesting(false)
+            }
         }
     }
     
@@ -160,97 +189,115 @@ struct SettingsView: View {
                 .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    ForEach(themes) { theme in
-                        Button(action: { applyTheme(theme) }) {
-                            VStack(spacing: 14) {
-                                // Palette preview in a small paper cut shape
-                                ZStack {
-                                    PaperCutShape()
-                                        .fill(Color(hex: theme.bg))
-                                        .frame(width: 64, height: 44)
-                                        .overlay(PaperCutShape().stroke(Color.lpInk.opacity(0.2), lineWidth: 1))
-                                    
-                                    Circle()
-                                        .fill(Color(hex: theme.highlight))
-                                        .frame(width: 18, height: 18)
-                                        .offset(x: 12, y: 8)
-                                    
-                                    Circle()
-                                        .fill(Color(hex: theme.text))
-                                        .frame(width: 14, height: 14)
-                                        .offset(x: -18, y: -6)
-                                }
-                                
-                                Text(theme.name.uppercased())
-                                    .font(.system(size: 10, weight: .black))
-                                    .tracking(1)
-                                    .foregroundColor(themeText)
-                            }
-                            .padding(.vertical, 18)
-                            .padding(.horizontal, 14)
-                            .background(
-                                PaperCutShape()
-                                    .fill(isThemeApplied(theme) ? themeHighlight.opacity(0.25) : themeText.opacity(0.05))
-                                    .overlay(
-                                        PaperCutShape()
-                                            .stroke(isThemeApplied(theme) ? themeHighlight : themeText.opacity(0.1), lineWidth: isThemeApplied(theme) ? 2 : 1)
-                                    )
-                            )
-                            .paperCutShadow()
-                        }
-                        .buttonStyle(.plain)
+            // Stacked polaroid-style presets
+            VStack(spacing: -24) {
+                ForEach(0..<themes.count, id: \.self) { index in
+                    let theme = themes[index]
+                    Button(action: { applyTheme(theme) }) {
+                        polaroidCard(theme: theme, index: index, isSelected: isThemeApplied(theme))
                     }
+                    .buttonStyle(.plain)
+                    .zIndex(Double(themes.count - index))
                 }
-                .padding(.horizontal, 10)
-                .padding(.bottom, 10)
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
     }
     
-    // MARK: - Options Group
+    private func polaroidCard(theme: Theme, index: Int, isSelected: Bool) -> some View {
+        let rotations: [Double] = [-4, 5, -2, 3]
+        let offsets: [CGFloat] = [0, 24, -16, 8]
+        
+        return VStack(spacing: 10) {
+            ZStack {
+                PaperCutShape()
+                    .fill(Color(hex: theme.bg))
+                    .frame(height: 72)
+                    .overlay(PaperCutShape().stroke(Color.lpInk.opacity(0.2), lineWidth: 1))
+                
+                HStack(spacing: 12) {
+                    Circle()
+                        .fill(Color(hex: theme.text))
+                        .frame(width: 14, height: 14)
+                    
+                    Circle()
+                        .fill(Color(hex: theme.highlight))
+                        .frame(width: 20, height: 20)
+                    
+                    Spacer()
+                    
+                    Text(theme.name.uppercased())
+                        .font(DesignSystem.display(size: 18, weight: .black))
+                        .foregroundColor(Color(hex: theme.text))
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .padding(12)
+        .padding(.bottom, 28)
+        .background(
+            PaperCutShape()
+                .fill(Color.lpCream)
+                .overlay(
+                    PaperCutShape()
+                        .stroke(isSelected ? Color.lpPumpkin : Color.lpInk.opacity(0.15), lineWidth: isSelected ? 3 : 1)
+                )
+        )
+        .shadow(color: shadowColor, radius: 0, x: 6, y: 6)
+        .rotationEffect(.degrees(rotations[index % rotations.count]))
+        .offset(x: offsets[index % offsets.count])
+    }
     
-    private var appearanceSettingsSection: some View {
+    // MARK: - Custom Tweaks
+    
+    private var customTweaksSection: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("MANUAL ADJUSTMENTS")
+            Text("CUSTOM TWEAKS")
                 .font(.system(size: 10, weight: .black))
                 .tracking(2)
                 .foregroundColor(themeText.opacity(0.8))
                 .padding(.leading, 8)
             
             VStack(spacing: 0) {
-                customColorRow(title: "Background", hex: $localBgHex, onCommit: { applyHexIfValid($localBgHex, field: .background) })
-                customColorRow(title: "Context Lines", hex: $localTextHex, onCommit: { applyHexIfValid($localTextHex, field: .text) })
-                customColorRow(title: "Active Highlight", hex: $localHighlightHex, onCommit: { applyHexIfValid($localHighlightHex, field: .highlight) })
-                
-                DottedDivider().padding(.horizontal, 20).padding(.vertical, 12)
-                
-                // Font Size Slider
-                VStack(alignment: .leading, spacing: 10) {
+                // Text Sizing
+                VStack(spacing: 4) {
                     HStack {
-                        Text("Text Sizing")
-                            .font(DesignSystem.display(size: 16, weight: .bold))
-                            .foregroundColor(themeText)
+                        Text("TEXT SIZING")
+                            .font(.system(size: 11, weight: .black))
+                            .tracking(2)
+                            .foregroundColor(themeText.opacity(0.6))
                         Spacer()
-                        Text("\(Int(store.fontSize)) pt")
-                            .font(.system(size: 12, weight: .bold, design: .monospaced))
-                            .foregroundColor(themeText.opacity(0.8))
+                        Text("\(Int(store.fontSize))pt")
+                            .font(DesignSystem.display(size: 22, weight: .black))
+                            .foregroundColor(themeHighlight)
                     }
                     
                     Slider(value: $store.fontSize, in: 12...22, step: 1)
                         .tint(themeHighlight)
+                    
+                    HStack {
+                        Text("PETITE")
+                        Spacer()
+                        Text("STANDARD")
+                        Spacer()
+                        Text("ENORMOUS")
+                    }
+                    .font(.system(size: 10, weight: .black))
+                    .tracking(1)
+                    .foregroundColor(themeText.opacity(0.4))
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 14)
+                .padding(.vertical, 16)
                 
                 Divider().background(themeText.opacity(0.08)).padding(.horizontal, 20)
                 
-                // Visible lines
+                // Line Capacity
                 HStack {
-                    Text("Line Capacity")
-                        .font(DesignSystem.display(size: 16, weight: .bold))
-                        .foregroundColor(themeText)
+                    Text("LINE CAPACITY")
+                        .font(.system(size: 11, weight: .black))
+                        .tracking(2)
+                        .foregroundColor(themeText.opacity(0.6))
                     Spacer()
                     Picker("", selection: $store.linesVisible) {
                         Text("3 Lines").tag(3)
@@ -259,42 +306,23 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(themeHighlight)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(themeHighlight)
+                    .foregroundColor(Color.lpInk)
+                    .clipShape(PaperCutShape())
+                    .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 14)
+                .padding(.vertical, 16)
             }
             .background(
                 PaperCutShape()
-                    .fill(Color.white.opacity(0.35))
+                    .fill(cardBg)
                     .overlay(PaperCutShape().stroke(themeText.opacity(0.15), lineWidth: 1))
             )
-            .paperCutShadow()
+            .shadow(color: shadowColor, radius: 0, x: 6, y: 6)
         }
-    }
-    
-    private func customColorRow(title: String, hex: Binding<String>, onCommit: @escaping () -> Void) -> some View {
-        HStack {
-            Text(title)
-                .font(DesignSystem.display(size: 16, weight: .bold))
-                .foregroundColor(themeText)
-            Spacer()
-            
-            TextField("#FFFFFF", text: hex)
-                .onSubmit(onCommit)
-                .frame(width: 80)
-                .multilineTextAlignment(.trailing)
-                .foregroundColor(themeText.opacity(0.9))
-                .font(.system(size: 13, weight: .medium, design: .monospaced))
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.characters)
-            
-            PaperCutShape()
-                .fill(Color(hex: hex.wrappedValue))
-                .frame(width: 26, height: 26)
-                .overlay(PaperCutShape().stroke(themeText.opacity(0.4), lineWidth: 1.5))
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
     }
     
     // MARK: - Diagnostics
@@ -308,14 +336,14 @@ struct SettingsView: View {
                     .font(DesignSystem.display(size: 12, weight: .black))
                     .tracking(1)
             }
-            .foregroundColor(AppGroupHelper.isAppGroupAccessible ? Color.lpMint : Color.lpCrimson)
+            .foregroundColor(Color.lpInk)
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
             .background(
-                WashiTape(color: themeText.opacity(0.08), rotation: .degrees(-0.5))
-                    .overlay(Rectangle().stroke(themeText.opacity(0.1), lineWidth: 1))
+                WashiTape(color: Color.lpCream2, rotation: .degrees(-0.5))
+                    .overlay(Rectangle().stroke(Color.lpInk.opacity(0.15), lineWidth: 1))
             )
-            .paperCutShadow()
+            .shadow(color: shadowColor, radius: 0, x: 4, y: 4)
             
             VStack(spacing: 4) {
                 Text("LYRICO v1.0")
@@ -324,7 +352,7 @@ struct SettingsView: View {
                 Text("picture books for the home screen")
                     .font(DesignSystem.display(size: 10, weight: .light, italic: true))
             }
-            .opacity(0.4)
+            .foregroundColor(themeText.opacity(0.4))
             .padding(.top, 16)
         }
         .padding(.bottom, 32)
@@ -344,7 +372,6 @@ struct SettingsView: View {
             localHighlightHex = theme.highlight
         }
         
-        // Haptic Feedback
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
     }
@@ -353,47 +380,6 @@ struct SettingsView: View {
         return store.backgroundColorHex.uppercased() == theme.bg.uppercased() &&
                store.textColorHex.uppercased() == theme.text.uppercased() &&
                store.highlightColorHex.uppercased() == theme.highlight.uppercased()
-    }
-    
-    private enum ColorField {
-        case background
-        case text
-        case highlight
-    }
-    
-    private func applyHexIfValid(_ hexBinding: Binding<String>, field: ColorField) {
-        let hex = hexBinding.wrappedValue
-        var cleanHex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !cleanHex.hasPrefix("#") {
-            cleanHex = "#" + cleanHex
-        }
-        let hexVal = cleanHex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        let hexCharacters = CharacterSet(charactersIn: "0123456789ABCDEFabcdef")
-        if (hexVal.count == 6 || hexVal.count == 8) &&
-           CharacterSet(charactersIn: hexVal).isSubset(of: hexCharacters) {
-            withAnimation {
-                switch field {
-                case .background:
-                    store.backgroundColorHex = cleanHex
-                case .text:
-                    store.textColorHex = cleanHex
-                case .highlight:
-                    store.highlightColorHex = cleanHex
-                }
-            }
-            hexBinding.wrappedValue = cleanHex
-        } else {
-            let fallback: String
-            switch field {
-            case .background:
-                fallback = store.backgroundColorHex
-            case .text:
-                fallback = store.textColorHex
-            case .highlight:
-                fallback = store.highlightColorHex
-            }
-            hexBinding.wrappedValue = fallback
-        }
     }
     
     struct Theme: Identifiable {

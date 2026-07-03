@@ -78,20 +78,17 @@ struct PaperBackground: View {
             color
             
             if hasGrain {
-                // Simpler, more performant grain for both app and widget
-                // Using a repeating pattern of dots instead of random Canvas loops
-                GeometryReader { geo in
-                    ZStack {
-                        // Base noise simulation with opacity layers
-                        Color.lpInk.opacity(0.02)
-                        
-                        // Subtle gradient overlay for paper depth
-                        RadialGradient(
-                            colors: [Color.white.opacity(0.15), Color.clear],
-                            center: .topLeading,
-                            startRadius: 0,
-                            endRadius: 500
-                        )
+                // Repeating pattern of dots (stippled texture) matching the canvas design
+                Canvas { context, size in
+                    let dotRadius: CGFloat = 1.0
+                    let spacing: CGFloat = 20.0
+                    let dotColor = Color.lpInk.opacity(0.04)
+                    
+                    for y in stride(from: 0, to: size.height, by: spacing) {
+                        for x in stride(from: 0, to: size.width, by: spacing) {
+                            let rect = CGRect(x: x - dotRadius, y: y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
+                            context.fill(Path(ellipseIn: rect), with: .color(dotColor))
+                        }
                     }
                 }
                 .allowsHitTesting(false)
@@ -107,8 +104,8 @@ struct WashiTape: View {
     
     var body: some View {
         Canvas { context, size in
-            let baseColor = color.opacity(0.4)
-            let stripeColor = color.opacity(0.55)
+            let baseColor = color.opacity(0.55)
+            let stripeColor = color.opacity(0.4)
             
             // Fill background with base color
             context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(baseColor))
@@ -132,7 +129,7 @@ struct WashiTape: View {
         .frame(height: 22)
         .overlay(
             Rectangle()
-                .stroke(Color.lpInk.opacity(0.1), style: StrokeStyle(lineWidth: 1, dash: [4]))
+                .stroke(Color.lpInk.opacity(0.25), style: StrokeStyle(lineWidth: 1, dash: [4]))
         )
         .rotationEffect(rotation)
     }
@@ -156,6 +153,6 @@ struct DottedDivider: View {
 extension View {
     func paperCutShadow() -> some View {
         self.shadow(color: Color.lpInk.opacity(0.35), radius: 10, x: 0, y: 8)
-            .shadow(color: Color.lpInk.opacity(0.1), radius: 0, x: 0, y: 4)
+            .shadow(color: Color.lpInk.opacity(0.2), radius: 0, x: 0, y: 4)
     }
 }

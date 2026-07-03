@@ -94,12 +94,19 @@ class LyricsStore: ObservableObject {
         static let highlightColor = "widgetHighlightColor"
         static let fontSize = "widgetFontSize"
         static let linesVisible = "widgetLinesVisible"
+        static let recentlyPlayed = "recentlyPlayedSongsData"
     }
     
     // MARK: - Init
     
     /// Flag to temporarily suspend widget timeline reloads during batch updates.
     private var isBatchUpdating = false
+    
+    @Published var recentlyPlayed: [LRCSearchResult] = [] {
+        didSet {
+            persistRecentlyPlayed()
+        }
+    }
     
     private init() {
         let groupDefaults = UserDefaults(suiteName: AppGroupHelper.appGroupID) ?? .standard
@@ -120,6 +127,9 @@ class LyricsStore: ObservableObject {
         // Load current song
         loadSong()
         
+        // Load recently played history
+        loadRecentlyPlayed()
+        
         self.isBatchUpdating = false
     }
     
@@ -131,6 +141,14 @@ class LyricsStore: ObservableObject {
             self.currentSong = song
             self.currentLines = parseLines(for: song)
             self.currentLineIndex = initialIndex
+            
+            // Add to recently played list
+            var updated = recentlyPlayed.filter { $0.id != song.id }
+            updated.insert(song, at: 0)
+            if updated.count > 5 {
+                updated = Array(updated.prefix(5))
+            }
+            self.recentlyPlayed = updated
         }
     }
     
@@ -182,6 +200,24 @@ class LyricsStore: ObservableObject {
         self.currentSong = song
         self.currentLines = parseLines(for: song)
         self.currentLineIndex = defaults.integer(forKey: Keys.lineIndex)
+    }
+    
+    private func persistRecentlyPlayed() {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        if let data = try? encoder.encode(recentlyPlayed) {
+            defaults.set(data, forKey: Keys.recentlyPlayed)
+        }
+    }
+    
+    private func loadRecentlyPlayed() {
+        guard let data = defaults.data(forKey: Keys.recentlyPlayed) else { return }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        if let list = try? decoder.decode([LRCSearchResult].self, from: data) {
+            self.recentlyPlayed = list
+        }
     }
     
     // MARK: - Widget Control
