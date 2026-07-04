@@ -18,16 +18,21 @@ extension Color {
 }
 
 struct DesignSystem {
-    static let displayFont = "Fraunces" // Will fallback to system serif if not available
-    static let bodyFont = "Inter"       // Will fallback to system sans if not available
+    /// PostScript/full name of the bundled display font.
+    /// Verify this matches the name reported by `UIFont.fontNames(forFamilyName:)`
+    /// after adding the font files to the app and widget targets.
+    static let displayFont = "Lyrico Display Midnight"
+    static let bodyFont = "Inter"
     
     static func display(size: CGFloat, weight: Font.Weight = .bold, italic: Bool = false) -> Font {
-        let base = Font.system(size: size, weight: weight, design: .serif)
+        let base = Font.custom(displayFont, size: size, relativeTo: .largeTitle)
+            .weight(weight)
         return italic ? base.italic() : base
     }
     
     static func body(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        Font.system(size: size, weight: weight, design: .default)
+        Font.custom(bodyFont, size: size, relativeTo: .body)
+            .weight(weight)
     }
 }
 

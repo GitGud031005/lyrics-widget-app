@@ -6,11 +6,12 @@ struct SettingsView: View {
     
     @State private var showLineCapacityPicker = false
     
-    // Midnight Mood presets
+    // Mood presets
     private let themes = [
         Theme(name: "Midnight Mood", bg: "#3A2C5C", text: "#F4E9D0", highlight: "#E08244"),
         Theme(name: "Minty Fresh", bg: "#A8D6B8", text: "#3A2C5C", highlight: "#C23D3D"),
-        Theme(name: "Classic Press", bg: "#F4E9D0", text: "#3A2C5C", highlight: "#E08244")
+        Theme(name: "Classic Press", bg: "#F4E9D0", text: "#3A2C5C", highlight: "#E08244"),
+        Theme(name: "Crimson Noir", bg: "#C23D3D", text: "#F4E9D0", highlight: "#A8D6B8")
     ]
     
     var body: some View {
@@ -21,8 +22,8 @@ struct SettingsView: View {
                 VStack(spacing: 44) {
                     headerSection
                     widgetPreviewSection
-                    themePresetsSection
                     customTweaksSection
+                    themePresetsSection
                     diagnosticsSection
                 }
                 .padding(.horizontal, 24)

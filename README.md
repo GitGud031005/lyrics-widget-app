@@ -105,6 +105,26 @@ Follow these docs **in order**. Each phase has a checklist at the top — tick i
 
 ---
 
+## Custom Fonts
+
+The app is configured to use **Lyrico Display – Midnight** as the display font.
+
+1. Add the font file(s) (e.g. `LyricoDisplay-Midnight.ttf` or `.otf`) to both targets:
+   - `LyricsWidget`
+   - `LyricsWidgetExtension`
+2. Make sure each file is listed under **Build Phases → Copy Bundle Resources** for both targets.
+3. The font is already registered in:
+   - `LyricsWidget/Info.plist`
+   - `LyricsWidgetExtension/Info.plist`
+4. If your font file has a different name, update both `UIAppFonts` arrays to match.
+5. Verify the exact font name SwiftUI expects by checking the PostScript name. You can print available names at runtime:
+   ```swift
+   for name in UIFont.familyNames.sorted() {
+       print("\(name): \(UIFont.fontNames(forFamilyName: name))")
+   }
+   ```
+6. Update `DesignSystem.displayFont` in `LyricsWidget/Theme.swift` if the PostScript/full name differs from `"Lyrico Display Midnight"`.
+
 ## Credentials Checklist
 
 Fill these in during Phase 0 and keep them safe:
