@@ -563,3 +563,8 @@ struct TornBorderShape: Shape {
     }
 }
 
+#Preview {
+    SettingsView()
+        .environmentObject(LyricsStore.shared)
+}
+

@@ -93,3 +93,8 @@ struct LyricsWidgetApp: App {
         }
     }
 }
+
+#Preview {
+    MainContainerView()
+        .environmentObject(LyricsStore.shared)
+}

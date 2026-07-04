@@ -489,3 +489,8 @@ struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
+
+#Preview {
+    LyricsSearchView()
+        .environmentObject(LyricsStore.shared)
+}

@@ -329,3 +329,16 @@ struct LyricsDisplayView: View {
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }
+
+#Preview {
+    LyricsDisplayView(song: LRCSearchResult(
+        id: 12345,
+        trackName: "Lie to Me",
+        artistName: "Tate McRae",
+        albumName: "Too Young to Be Sad",
+        duration: 180.0,
+        plainLyrics: "You told me that we were forever\nBut forever was a lie...\nAnd now I'm here alone",
+        syncedLyrics: "[00:10.00] You told me that we were forever\n[00:15.00] But forever was a lie...\n[00:20.00] And now I'm here alone"
+    ))
+    .environmentObject(LyricsStore.shared)
+}
