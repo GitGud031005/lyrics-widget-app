@@ -6,6 +6,7 @@ extension Color {
     static let lpCream = Color(hex: "#F4E9D0")
     static let lpCream2 = Color(hex: "#EFE0BE")
     static let lpInk = Color(hex: "#3A2C5C")
+    static let lpInkDark = Color(hex: "#2A1E45")
     static let lpPumpkin = Color(hex: "#E08244")
     static let lpMint = Color(hex: "#A8D6B8")
     static let lpCrimson = Color(hex: "#C23D3D")
@@ -311,6 +312,241 @@ struct TornWashiTape: View {
             }
         }
         .frame(minHeight: 44)
+    }
+}
+
+// MARK: - Midnight Display Background
+
+/// Deep ink background with two-layer stipple dots and grain overlay
+/// used by the Lyrico Display – Midnight canvas design.
+struct MidnightDisplayBackground: View {
+    var baseColor: Color = .lpInk
+    
+    var body: some View {
+        ZStack {
+            baseColor
+            
+            // Mint stipple layer (12% opacity, 40 px spacing)
+            Canvas { context, size in
+                let dotRadius: CGFloat = 1.5
+                let spacing: CGFloat = 40.0
+                let dotColor = Color.lpMint.opacity(0.12)
+                
+                for y in stride(from: 0, to: size.height, by: spacing) {
+                    for x in stride(from: 0, to: size.width, by: spacing) {
+                        let rect = CGRect(x: x - dotRadius, y: y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
+                        context.fill(Path(ellipseIn: rect), with: .color(dotColor))
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+            
+            // Pumpkin stipple layer (8% opacity, 14 px spacing, offset)
+            Canvas { context, size in
+                let dotRadius: CGFloat = 1.0
+                let spacing: CGFloat = 14.0
+                let dotColor = Color.lpPumpkin.opacity(0.08)
+                let offset: CGFloat = 7.0
+                
+                for y in stride(from: offset, to: size.height, by: spacing) {
+                    for x in stride(from: offset, to: size.width, by: spacing) {
+                        let rect = CGRect(x: x - dotRadius, y: y - dotRadius, width: dotRadius * 2, height: dotRadius * 2)
+                        context.fill(Path(ellipseIn: rect), with: .color(dotColor))
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+            
+            // Grain overlay
+            Canvas { context, size in
+                let noiseColor = Color.white.opacity(0.05)
+                let step: CGFloat = 3.0
+                
+                for y in stride(from: 0, to: size.height, by: step) {
+                    for x in stride(from: 0, to: size.width, by: step) {
+                        // Pseudo-random noise based on position
+                        let hash = sin(x * 12.9898 + y * 78.233) * 43758.5453
+                        let value = hash - floor(hash)
+                        if value < 0.14 {
+                            let rect = CGRect(x: x, y: y, width: 1, height: 1)
+                            context.fill(Path(rect), with: .color(noiseColor))
+                        }
+                    }
+                }
+            }
+            .blendMode(.overlay)
+            .opacity(0.35)
+            .allowsHitTesting(false)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+// MARK: - Scallop Divider
+
+/// Repeating semi-circle cutout divider matching the canvas scallop-divider.
+struct ScallopDivider: View {
+    var color: Color = .lpInk
+    var invert: Bool = false
+    
+    var body: some View {
+        GeometryReader { geo in
+            let radius: CGFloat = 8
+            let diameter = radius * 2
+            let count = max(1, Int(geo.size.width / diameter) + 1)
+            
+            Canvas { context, size in
+                for i in 0..<count {
+                    let cx = CGFloat(i) * diameter + radius
+                    let cy: CGFloat = invert ? size.height : 0
+                    let path = Path {
+                        if invert {
+                            $0.move(to: CGPoint(x: cx - radius, y: 0))
+                            $0.addArc(center: CGPoint(x: cx, y: 0), radius: radius, startAngle: .degrees(180), endAngle: .degrees(0), clockwise: false)
+                            $0.addLine(to: CGPoint(x: cx + radius, y: 0))
+                            $0.addLine(to: CGPoint(x: cx + radius, y: size.height))
+                            $0.addLine(to: CGPoint(x: cx - radius, y: size.height))
+                        } else {
+                            $0.move(to: CGPoint(x: cx - radius, y: size.height))
+                            $0.addArc(center: CGPoint(x: cx, y: size.height), radius: radius, startAngle: .degrees(180), endAngle: .degrees(0), clockwise: true)
+                            $0.addLine(to: CGPoint(x: cx + radius, y: size.height))
+                            $0.addLine(to: CGPoint(x: cx + radius, y: 0))
+                            $0.addLine(to: CGPoint(x: cx - radius, y: 0))
+                        }
+                        $0.closeSubpath()
+                    }
+                    context.fill(path, with: .color(color))
+                }
+            }
+        }
+        .frame(height: 12)
+    }
+}
+
+// MARK: - Cut Card Shape
+
+/// Hand-cut irregular card shape from the Lyrico Display – Midnight canvas.
+struct CutCardShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let w = rect.width
+        let h = rect.height
+        
+        path.move(to: CGPoint(x: w * 0.01, y: h * 0.02))
+        path.addLine(to: CGPoint(x: w * 0.12, y: 0))
+        path.addLine(to: CGPoint(x: w * 0.25, y: h * 0.03))
+        path.addLine(to: CGPoint(x: w * 0.48, y: h * 0.01))
+        path.addLine(to: CGPoint(x: w * 0.72, y: h * 0.03))
+        path.addLine(to: CGPoint(x: w * 0.90, y: 0))
+        path.addLine(to: CGPoint(x: w * 0.99, y: h * 0.03))
+        path.addLine(to: CGPoint(x: w, y: h * 0.20))
+        path.addLine(to: CGPoint(x: w * 0.98, y: h * 0.45))
+        path.addLine(to: CGPoint(x: w, y: h * 0.70))
+        path.addLine(to: CGPoint(x: w * 0.99, y: h * 0.88))
+        path.addLine(to: CGPoint(x: w, y: h * 0.98))
+        path.addLine(to: CGPoint(x: w * 0.85, y: h))
+        path.addLine(to: CGPoint(x: w * 0.62, y: h * 0.98))
+        path.addLine(to: CGPoint(x: w * 0.38, y: h))
+        path.addLine(to: CGPoint(x: w * 0.15, y: h * 0.99))
+        path.addLine(to: CGPoint(x: w * 0.03, y: h))
+        path.addLine(to: CGPoint(x: 0, y: h * 0.82))
+        path.addLine(to: CGPoint(x: w * 0.02, y: h * 0.58))
+        path.addLine(to: CGPoint(x: 0, y: h * 0.32))
+        path.addLine(to: CGPoint(x: w * 0.01, y: h * 0.15))
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
+// MARK: - Mint Washi Tape
+
+/// Mint washi tape with diagonal stripes used on the active lyric card.
+struct MintWashiTape: View {
+    var body: some View {
+        Canvas { context, size in
+            let baseColor = Color.lpMint.opacity(0.45)
+            let stripeColor = Color.lpMint.opacity(0.25)
+            
+            // Fill background
+            context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(baseColor))
+            
+            // Diagonal stripes slanted /
+            let step: CGFloat = 16
+            let stripeWidth: CGFloat = 8
+            
+            for x in stride(from: -size.height, to: size.width + step, by: step) {
+                var path = Path()
+                path.move(to: CGPoint(x: x + size.height, y: 0))
+                path.addLine(to: CGPoint(x: x + size.height + stripeWidth, y: 0))
+                path.addLine(to: CGPoint(x: x + stripeWidth, y: size.height))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                path.closeSubpath()
+                context.fill(path, with: .color(stripeColor))
+            }
+        }
+        .overlay(
+            Rectangle()
+                .stroke(Color.lpCream.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [4]))
+        )
+        .frame(height: 20)
+    }
+}
+
+// MARK: - Offset Shadow Button Style
+
+/// Neo-brutalist button with an irregular border-radius and hard offset shadow.
+struct OffsetShadowButtonStyle: ButtonStyle {
+    var background: Color = .lpPumpkin
+    var foreground: Color = .lpInk
+    var border: Color = .lpInkDark
+    var shadow: Color = .lpInkDark
+    var radii: (CGFloat, CGFloat, CGFloat, CGFloat) = (20, 28, 22, 26)
+    var shadowOffset: CGSize = CGSize(width: 4, height: 4)
+    var pressOffset: CGSize = CGSize(width: 1, height: 1)
+    
+    func makeBody(configuration: Configuration) -> some View {
+        ZStack {
+            // Offset shadow
+            UnevenRoundedRectangle(
+                topLeadingRadius: radii.0,
+                bottomLeadingRadius: radii.2,
+                bottomTrailingRadius: radii.3,
+                topTrailingRadius: radii.1
+            )
+            .fill(shadow)
+            .offset(x: shadowOffset.width, y: shadowOffset.height)
+            
+            // Main button
+            UnevenRoundedRectangle(
+                topLeadingRadius: radii.0,
+                bottomLeadingRadius: radii.2,
+                bottomTrailingRadius: radii.3,
+                topTrailingRadius: radii.1
+            )
+            .fill(background)
+            .overlay(
+                UnevenRoundedRectangle(
+                    topLeadingRadius: radii.0,
+                    bottomLeadingRadius: radii.2,
+                    bottomTrailingRadius: radii.3,
+                    topTrailingRadius: radii.1
+                )
+                .stroke(border, lineWidth: 2)
+            )
+            .offset(
+                x: configuration.isPressed ? pressOffset.width : 0,
+                y: configuration.isPressed ? pressOffset.height : 0
+            )
+            
+            configuration.label
+                .foregroundColor(foreground)
+                .offset(
+                    x: configuration.isPressed ? pressOffset.width : 0,
+                    y: configuration.isPressed ? pressOffset.height : 0
+                )
+        }
+        .compositingGroup()
     }
 }
 
